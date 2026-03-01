@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { ChevronDown } from 'lucide-react';
 import ChatBubble from './ChatBubble';
 import ChatInput from './ChatInput';
 import WelcomeScreen from './WelcomeScreen';
 import { ChatMessage, Role } from '../types';
 import { useVirtualList } from '../hooks/useVirtualList';
+import { t } from '../utils/i18n';
 
 type ChatMainProps = {
   messages: ChatMessage[];
@@ -11,6 +13,8 @@ type ChatMainProps = {
   isLoading: boolean;
   messagesContainerRef: React.RefObject<HTMLDivElement>;
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  showScrollToBottom: boolean;
+  onJumpToBottom: () => void;
   onSendMessage: (text: string) => void;
   onStopStreaming: () => void;
   searchEnabled: boolean;
@@ -24,12 +28,18 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
   isLoading,
   messagesContainerRef,
   messagesEndRef,
+  showScrollToBottom,
+  onJumpToBottom,
   onSendMessage,
   onStopStreaming,
   searchEnabled,
   searchAvailable,
   onToggleSearch,
 }) => {
+  const lastSkippedMeasureIndexRef = useRef<number | null>(null);
+  const pendingFinalMeasureIndexRef = useRef<number | null>(null);
+  const previousIsStreamingRef = useRef(isStreaming);
+
   const chatInputProps = useMemo(
     () => ({
       onSend: onSendMessage,
@@ -67,8 +77,15 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
       containerRef: messagesContainerRef,
       estimateSize: estimateMessageSize,
       getItemKey: (msg) => msg.id,
-      overscan: 8,
+      overscan: messages.length,
     });
+
+  useEffect(() => {
+    if (previousIsStreamingRef.current && !isStreaming) {
+      pendingFinalMeasureIndexRef.current = lastSkippedMeasureIndexRef.current;
+    }
+    previousIsStreamingRef.current = isStreaming;
+  }, [isStreaming]);
 
   return (
     <main className="chat-main flex-1 flex flex-col h-full relative bg-transparent pt-0">
@@ -95,7 +112,28 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
             <>
               <div style={{ height: `${topSpacerHeight}px` }} />
               {visibleItems.map(({ item: msg, index }) => (
-                <div key={msg.id} ref={(node) => measureItem(index, node)}>
+                <div
+                  key={msg.id}
+                  ref={(node) => {
+                    if (!node) return;
+                    const isStreamingTailModel =
+                      isStreaming && index === messages.length - 1 && msg.role === Role.Model;
+
+                    if (isStreamingTailModel) {
+                      // Keep virtual list on estimated size while streaming to reduce layout jitter.
+                      lastSkippedMeasureIndexRef.current = index;
+                      return;
+                    }
+
+                    measureItem(index, node);
+
+                    if (pendingFinalMeasureIndexRef.current === index) {
+                      // Force one final precise measure after stream end.
+                      measureItem(index, node);
+                      pendingFinalMeasureIndexRef.current = null;
+                    }
+                  }}
+                >
                   <ChatBubble
                     message={msg}
                     isStreaming={
@@ -113,6 +151,24 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
       </div>
 
       {/* Input Area */}
+      {hasMessages && showScrollToBottom && (
+        <div
+          className="absolute left-0 right-0 z-20 pointer-events-none"
+          style={{ bottom: 'calc(var(--chat-input-height, 120px) + 16px)' }}
+        >
+          <div className="mx-auto flex w-full max-w-[min(64rem,100%)] justify-end px-4">
+            <button
+              type="button"
+              onClick={onJumpToBottom}
+              className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line-1)] bg-[var(--bg-2)] text-[var(--ink-2)] shadow-sm transition-colors hover:text-[var(--ink-1)]"
+              aria-label={t('chat.scrollToBottom')}
+              title={t('chat.scrollToBottom')}
+            >
+              <ChevronDown size={18} />
+            </button>
+          </div>
+        </div>
+      )}
       {hasMessages && (
         <div className="absolute bottom-0 left-0 right-0 z-20">
           <ChatInput {...chatInputProps} />

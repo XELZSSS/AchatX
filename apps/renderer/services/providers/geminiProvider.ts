@@ -5,6 +5,8 @@ import type {
   GenerateContentResponse,
   GoogleGenAI,
   Part,
+  ThinkingConfig,
+  ThinkingLevel,
   Type,
   ToolListUnion,
 } from '@google/genai';
@@ -18,12 +20,43 @@ import { TavilyToolArgs } from './openaiChatHelpers';
 
 export const GEMINI_PROVIDER_ID: ProviderId = 'gemini';
 export const GEMINI_MODEL_NAME = 'gemini-3.1-pro-preview';
+const GEMINI_THINKING_CONFIG: ThinkingConfig = {
+  includeThoughts: true,
+  thinkingLevel: 'HIGH' as ThinkingLevel,
+};
 const GEMINI_SCHEMA_TYPE = {
   OBJECT: 'OBJECT' as Type,
   STRING: 'STRING' as Type,
   INTEGER: 'INTEGER' as Type,
   BOOLEAN: 'BOOLEAN' as Type,
 } as const;
+
+type GeminiChunkPayload = {
+  content: string;
+  reasoning: string;
+};
+
+const extractGeminiChunkPayload = (response: GenerateContentResponse): GeminiChunkPayload => {
+  const parts = response.candidates?.[0]?.content?.parts ?? [];
+  let content = '';
+  let reasoning = '';
+
+  for (const part of parts) {
+    const text = part.text ?? '';
+    if (!text) continue;
+    if (part.thought) {
+      reasoning += text;
+      continue;
+    }
+    content += text;
+  }
+
+  if (!content && response.text) {
+    content = response.text;
+  }
+
+  return { content, reasoning };
+};
 
 let googleGenAIConstructorPromise: Promise<
   new (options: { apiKey: string }) => GoogleGenAI
@@ -75,6 +108,7 @@ class GeminiProvider implements ProviderChat {
       history,
       config: {
         systemInstruction: buildSystemInstruction(this.id, this.modelName),
+        thinkingConfig: GEMINI_THINKING_CONFIG,
       },
     });
   }
@@ -195,6 +229,7 @@ class GeminiProvider implements ProviderChat {
   async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
     try {
       let fullResponse = '';
+      let fullReasoning = '';
       const userMessage: ChatMessage = {
         id: `gemini-user-${Date.now()}`,
         role: Role.User,
@@ -207,9 +242,14 @@ class GeminiProvider implements ProviderChat {
 
         for await (const chunk of result) {
           const c = chunk as GenerateContentResponse;
-          if (c.text) {
-            fullResponse += c.text;
-            yield c.text;
+          const payload = extractGeminiChunkPayload(c);
+          if (payload.reasoning) {
+            fullReasoning += payload.reasoning;
+            yield `<think>${payload.reasoning}</think>`;
+          }
+          if (payload.content) {
+            fullResponse += payload.content;
+            yield payload.content;
           }
         }
         if (fullResponse) {
@@ -217,6 +257,7 @@ class GeminiProvider implements ProviderChat {
             id: `gemini-model-${Date.now()}`,
             role: Role.Model,
             text: fullResponse,
+            reasoning: fullReasoning || undefined,
             timestamp: Date.now(),
           };
           this.history = [...this.history, userMessage, modelMessage];
@@ -233,18 +274,25 @@ class GeminiProvider implements ProviderChat {
         config: {
           systemInstruction: buildSystemInstruction(this.id, this.modelName),
           tools,
+          thinkingConfig: GEMINI_THINKING_CONFIG,
         },
       });
 
       const functionCalls = response.functionCalls ?? [];
       if (!functionCalls.length) {
-        if (response.text) {
-          fullResponse = response.text;
-          yield response.text;
+        const payload = extractGeminiChunkPayload(response);
+        if (payload.reasoning) {
+          fullReasoning += payload.reasoning;
+          yield `<think>${payload.reasoning}</think>`;
+        }
+        if (payload.content) {
+          fullResponse = payload.content;
+          yield payload.content;
           const modelMessage: ChatMessage = {
             id: `gemini-model-${Date.now()}`,
             role: Role.Model,
-            text: response.text,
+            text: payload.content,
+            reasoning: fullReasoning || undefined,
             timestamp: Date.now(),
           };
           this.history = [...this.history, userMessage, modelMessage];
@@ -254,9 +302,14 @@ class GeminiProvider implements ProviderChat {
         const result = await chat.sendMessageStream({ message });
         for await (const chunk of result) {
           const c = chunk as GenerateContentResponse;
-          if (c.text) {
-            fullResponse += c.text;
-            yield c.text;
+          const payload = extractGeminiChunkPayload(c);
+          if (payload.reasoning) {
+            fullReasoning += payload.reasoning;
+            yield `<think>${payload.reasoning}</think>`;
+          }
+          if (payload.content) {
+            fullResponse += payload.content;
+            yield payload.content;
           }
         }
         if (fullResponse) {
@@ -264,6 +317,7 @@ class GeminiProvider implements ProviderChat {
             id: `gemini-model-${Date.now()}`,
             role: Role.Model,
             text: fullResponse,
+            reasoning: fullReasoning || undefined,
             timestamp: Date.now(),
           };
           this.history = [...this.history, userMessage, modelMessage];
@@ -327,14 +381,20 @@ class GeminiProvider implements ProviderChat {
         config: {
           systemInstruction: buildSystemInstruction(this.id, this.modelName),
           tools,
+          thinkingConfig: GEMINI_THINKING_CONFIG,
         },
       });
 
       for await (const chunk of stream) {
         const c = chunk as GenerateContentResponse;
-        if (c.text) {
-          fullResponse += c.text;
-          yield c.text;
+        const payload = extractGeminiChunkPayload(c);
+        if (payload.reasoning) {
+          fullReasoning += payload.reasoning;
+          yield `<think>${payload.reasoning}</think>`;
+        }
+        if (payload.content) {
+          fullResponse += payload.content;
+          yield payload.content;
         }
       }
       if (fullResponse) {
@@ -342,6 +402,7 @@ class GeminiProvider implements ProviderChat {
           id: `gemini-model-${Date.now()}`,
           role: Role.Model,
           text: fullResponse,
+          reasoning: fullReasoning || undefined,
           timestamp: Date.now(),
         };
         this.history = [...this.history, userMessage, modelMessage];

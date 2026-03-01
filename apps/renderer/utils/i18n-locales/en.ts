@@ -35,6 +35,7 @@ export const EN_TRANSLATIONS = {
   'reasoning.title': 'Reasoning',
   'reasoning.collapse': 'Collapse',
   'reasoning.expand': 'Expand',
+  'chat.scrollToBottom': 'Jump to latest',
   'language.en': 'EN',
   'language.zhCN': '中文',
   'settings.apiKey.show': 'Show API key',

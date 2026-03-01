@@ -23,12 +23,23 @@ export const useStreamingMessages = ({
   messages,
   setMessages,
 }: UseStreamingMessagesOptions) => {
+  const STREAM_SCROLL_THROTTLE_MS = 80;
+  const NEAR_BOTTOM_THRESHOLD_PX = 96;
+  const FORCE_SCROLL_MAX_SETTLE_FRAMES = 120;
+  const FORCE_SCROLL_STABLE_FRAMES = 3;
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const stopRequestedRef = useRef(false);
   const messagesRef = useRef(messages);
+  const pendingAutoScrollBehaviorRef = useRef<ScrollBehavior | null>(null);
+  const autoScrollFrameRef = useRef<number | null>(null);
+  const forceScrollFrameRef = useRef<number | null>(null);
+  const pendingForceRequestFrameRef = useRef<number | null>(null);
+  const lastAutoScrollAtRef = useRef(0);
+  const isNearBottomRef = useRef(true);
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -46,15 +57,133 @@ export const useStreamingMessages = ({
   );
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth', force = false) => {
-    if (!force && !messagesEndRef.current && messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
+    const container = messagesContainerRef.current;
+    if (!force && !messagesEndRef.current && container) {
+      container.scrollTo({
+        top: container.scrollHeight,
         behavior,
       });
       return;
     }
+
+    if (force && container) {
+      if (forceScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(forceScrollFrameRef.current);
+        forceScrollFrameRef.current = null;
+      }
+
+      let stableFrames = 0;
+      const scrollAndSettle = (remainingFrames: number) => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: remainingFrames === FORCE_SCROLL_MAX_SETTLE_FRAMES ? behavior : 'auto',
+        });
+
+        const distanceToBottom =
+          container.scrollHeight - (container.scrollTop + container.clientHeight);
+        if (distanceToBottom <= NEAR_BOTTOM_THRESHOLD_PX) {
+          stableFrames += 1;
+        } else {
+          stableFrames = 0;
+        }
+
+        if (remainingFrames <= 0 || stableFrames >= FORCE_SCROLL_STABLE_FRAMES) {
+          isNearBottomRef.current = true;
+          setShowScrollToBottom(false);
+          forceScrollFrameRef.current = null;
+          return;
+        }
+        forceScrollFrameRef.current = window.requestAnimationFrame(() =>
+          scrollAndSettle(remainingFrames - 1)
+        );
+      };
+
+      scrollAndSettle(FORCE_SCROLL_MAX_SETTLE_FRAMES);
+      return;
+    }
+
     messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
   }, []);
+
+  const requestForceScrollToBottom = useCallback(
+    (behavior: ScrollBehavior = 'auto') => {
+      if (pendingForceRequestFrameRef.current !== null) {
+        window.cancelAnimationFrame(pendingForceRequestFrameRef.current);
+      }
+      pendingForceRequestFrameRef.current = window.requestAnimationFrame(() => {
+        pendingForceRequestFrameRef.current = null;
+        scrollToBottom(behavior, true);
+      });
+    },
+    [scrollToBottom]
+  );
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const updateNearBottomState = () => {
+      const distanceToBottom =
+        container.scrollHeight - (container.scrollTop + container.clientHeight);
+      const nextIsNearBottom = distanceToBottom <= NEAR_BOTTOM_THRESHOLD_PX;
+      isNearBottomRef.current = nextIsNearBottom;
+      setShowScrollToBottom(!nextIsNearBottom && messagesRef.current.length > 0);
+    };
+
+    updateNearBottomState();
+    const onScroll = () => updateNearBottomState();
+    container.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      container.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      setShowScrollToBottom(false);
+      return;
+    }
+    setShowScrollToBottom(!isNearBottomRef.current);
+  }, [messages.length]);
+
+  const scheduleAutoScroll = useCallback(
+    (behavior: ScrollBehavior) => {
+      pendingAutoScrollBehaviorRef.current = behavior;
+      if (autoScrollFrameRef.current !== null) return;
+
+      const flush = () => {
+        const pendingBehavior = pendingAutoScrollBehaviorRef.current;
+        if (!pendingBehavior) {
+          autoScrollFrameRef.current = null;
+          return;
+        }
+
+        const now = window.performance.now();
+        if (isStreaming && !isNearBottomRef.current) {
+          pendingAutoScrollBehaviorRef.current = null;
+          autoScrollFrameRef.current = null;
+          return;
+        }
+        if (isStreaming && now - lastAutoScrollAtRef.current < STREAM_SCROLL_THROTTLE_MS) {
+          autoScrollFrameRef.current = window.requestAnimationFrame(flush);
+          return;
+        }
+
+        pendingAutoScrollBehaviorRef.current = null;
+        lastAutoScrollAtRef.current = now;
+        scrollToBottom(pendingBehavior);
+        autoScrollFrameRef.current = null;
+
+        if (pendingAutoScrollBehaviorRef.current) {
+          autoScrollFrameRef.current = window.requestAnimationFrame(flush);
+        }
+      };
+
+      autoScrollFrameRef.current = window.requestAnimationFrame(flush);
+    },
+    [isStreaming, scrollToBottom]
+  );
 
   const updateMessageById = useCallback(
     (messageId: string, updates: Partial<ChatMessage>) => {
@@ -101,11 +230,11 @@ export const useStreamingMessages = ({
       const modelMessage = buildMessage(Role.Model, '', { id: modelMessageId });
 
       commitMessages((prev) => [...prev, userMessage, modelMessage]);
-      requestAnimationFrame(() => scrollToBottom('auto', true));
+      requestForceScrollToBottom('auto');
 
       return modelMessageId;
     },
-    [buildMessage, commitMessages, scrollToBottom]
+    [buildMessage, commitMessages, requestForceScrollToBottom]
   );
 
   const buildFriendlyErrorMessage = useCallback((rawMessage: string): string => {
@@ -172,9 +301,26 @@ ${rawMessage}
   }, [chatService]);
 
   useEffect(() => {
-    const behavior = isStreaming ? 'auto' : 'smooth';
-    scrollToBottom(behavior);
-  }, [messages, isStreaming, isLoading, scrollToBottom]);
+    if (!isStreaming) return;
+    scheduleAutoScroll('auto');
+  }, [isStreaming, messages, scheduleAutoScroll]);
+
+  useEffect(() => {
+    return () => {
+      if (autoScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(autoScrollFrameRef.current);
+        autoScrollFrameRef.current = null;
+      }
+      if (forceScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(forceScrollFrameRef.current);
+        forceScrollFrameRef.current = null;
+      }
+      if (pendingForceRequestFrameRef.current !== null) {
+        window.cancelAnimationFrame(pendingForceRequestFrameRef.current);
+        pendingForceRequestFrameRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSendMessage = useCallback(
     async (text: string) => {
@@ -256,12 +402,21 @@ ${rawMessage}
     setIsLoading(false);
   }, []);
 
+  const jumpToBottom = useCallback(() => {
+    isNearBottomRef.current = true;
+    setShowScrollToBottom(false);
+    scrollToBottom('smooth', true);
+  }, [scrollToBottom]);
+
   return {
     messagesEndRef,
     messagesContainerRef,
     isStreaming,
     isLoading,
+    showScrollToBottom,
     scrollToBottom,
+    requestForceScrollToBottom,
+    jumpToBottom,
     handleSendMessage,
     stopStreaming,
   };

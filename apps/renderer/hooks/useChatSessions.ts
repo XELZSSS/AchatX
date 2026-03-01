@@ -117,7 +117,7 @@ export const useChatSessions = ({
     }
 
     activateSessionContext(activeSession);
-    requestAnimationFrame(() => scrollToBottom('auto', true));
+    scrollToBottom('auto', true);
   }, [activateSessionContext, scrollToBottom]);
 
   useEffect(() => {
@@ -181,7 +181,7 @@ export const useChatSessions = ({
       activateSessionContext(session);
 
       closeSidebar();
-      requestAnimationFrame(() => scrollToBottom('auto', true));
+      scrollToBottom('auto', true);
     },
     [
       activateSessionContext,

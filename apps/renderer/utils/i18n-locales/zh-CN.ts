@@ -35,6 +35,7 @@ export const ZH_CN_TRANSLATIONS = {
   'reasoning.title': '思考过程',
   'reasoning.collapse': '收起',
   'reasoning.expand': '展开',
+  'chat.scrollToBottom': '回到底部',
   'language.en': 'EN',
   'language.zhCN': '中文',
   'settings.apiKey.show': '显示 API Key',

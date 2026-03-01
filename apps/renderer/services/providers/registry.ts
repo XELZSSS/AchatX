@@ -34,119 +34,83 @@ type ProviderMeta = {
   models: string[];
 };
 
-const geminiModelConfig = buildProviderModelConfig({
-  fallbackModel: 'gemini-3.1-pro-preview',
-  catalog: GEMINI_MODEL_CATALOG,
-});
+type ProviderModelSpec = {
+  envModel?: string;
+  fallbackModel: string;
+  catalog: string[];
+  includeFallbackModel?: boolean;
+};
 
-const openaiModelConfig = buildProviderModelConfig({
-  envModel: process.env.OPENAI_MODEL,
-  fallbackModel: 'gpt-5.2',
-  catalog: OPENAI_MODEL_CATALOG,
-});
-
-const openaiCompatibleModelConfig = buildProviderModelConfig({
-  envModel: process.env.OPENAI_COMPATIBLE_MODEL,
-  fallbackModel: 'gpt-4.1-mini',
-  catalog: OPENAI_COMPATIBLE_MODEL_CATALOG,
-});
-
-const openrouterModelConfig = buildProviderModelConfig({
-  envModel: process.env.OPENROUTER_MODEL,
-  fallbackModel: 'openrouter/auto',
-  catalog: OPENROUTER_MODEL_CATALOG,
-});
-
-const ollamaModelConfig = buildProviderModelConfig({
-  envModel: process.env.OLLAMA_MODEL,
-  fallbackModel: 'llama3.2',
-  catalog: OLLAMA_MODEL_CATALOG,
-});
-
-const xaiModelConfig = buildProviderModelConfig({
-  envModel: process.env.XAI_MODEL,
-  fallbackModel: 'grok-4',
-  catalog: XAI_MODEL_CATALOG,
-});
-
-const deepseekModelConfig = buildProviderModelConfig({
-  envModel: process.env.DEEPSEEK_MODEL,
-  fallbackModel: 'deepseek-chat',
-  catalog: DEEPSEEK_MODEL_CATALOG,
-});
-
-const glmModelConfig = buildProviderModelConfig({
-  envModel: process.env.GLM_MODEL,
-  fallbackModel: 'glm-5',
-  catalog: GLM_MODEL_CATALOG,
-});
-
-const minimaxModelConfig = buildProviderModelConfig({
-  envModel: process.env.MINIMAX_MODEL,
-  fallbackModel: 'MiniMax-M2.5',
-  catalog: MINIMAX_MODEL_CATALOG,
-  includeFallbackModel: false,
-});
-
-const moonshotModelConfig = buildProviderModelConfig({
-  envModel: process.env.MOONSHOT_MODEL,
-  fallbackModel: 'kimi-k2.5',
-  catalog: MOONSHOT_MODEL_CATALOG,
-  includeFallbackModel: false,
-});
-
-const iflowModelConfig = buildProviderModelConfig({
-  envModel: process.env.IFLOW_MODEL,
-  fallbackModel: 'TBStars2-200B-A13B',
-  catalog: IFLOW_MODEL_CATALOG,
-});
-
-const providerMeta: Record<ProviderId, ProviderMeta> = {
+const providerModelSpecs: Record<ProviderId, ProviderModelSpec> = {
   gemini: {
-    defaultModel: geminiModelConfig.defaultModel,
-    models: geminiModelConfig.models,
+    fallbackModel: 'gemini-3.1-pro-preview',
+    catalog: GEMINI_MODEL_CATALOG,
   },
   openai: {
-    defaultModel: openaiModelConfig.defaultModel,
-    models: openaiModelConfig.models,
+    envModel: process.env.OPENAI_MODEL,
+    fallbackModel: 'gpt-5.2',
+    catalog: OPENAI_MODEL_CATALOG,
   },
   'openai-compatible': {
-    defaultModel: openaiCompatibleModelConfig.defaultModel,
-    models: openaiCompatibleModelConfig.models,
+    envModel: process.env.OPENAI_COMPATIBLE_MODEL,
+    fallbackModel: 'gpt-4.1-mini',
+    catalog: OPENAI_COMPATIBLE_MODEL_CATALOG,
   },
   openrouter: {
-    defaultModel: openrouterModelConfig.defaultModel,
-    models: openrouterModelConfig.models,
+    envModel: process.env.OPENROUTER_MODEL,
+    fallbackModel: 'openrouter/auto',
+    catalog: OPENROUTER_MODEL_CATALOG,
   },
   ollama: {
-    defaultModel: ollamaModelConfig.defaultModel,
-    models: ollamaModelConfig.models,
+    envModel: process.env.OLLAMA_MODEL,
+    fallbackModel: 'llama3.2',
+    catalog: OLLAMA_MODEL_CATALOG,
   },
   xai: {
-    defaultModel: xaiModelConfig.defaultModel,
-    models: xaiModelConfig.models,
+    envModel: process.env.XAI_MODEL,
+    fallbackModel: 'grok-4',
+    catalog: XAI_MODEL_CATALOG,
   },
   deepseek: {
-    defaultModel: deepseekModelConfig.defaultModel,
-    models: deepseekModelConfig.models,
+    envModel: process.env.DEEPSEEK_MODEL,
+    fallbackModel: 'deepseek-chat',
+    catalog: DEEPSEEK_MODEL_CATALOG,
   },
   glm: {
-    defaultModel: glmModelConfig.defaultModel,
-    models: glmModelConfig.models,
+    envModel: process.env.GLM_MODEL,
+    fallbackModel: 'glm-5',
+    catalog: GLM_MODEL_CATALOG,
   },
   minimax: {
-    defaultModel: minimaxModelConfig.defaultModel,
-    models: minimaxModelConfig.models,
+    envModel: process.env.MINIMAX_MODEL,
+    fallbackModel: 'MiniMax-M2.5',
+    catalog: MINIMAX_MODEL_CATALOG,
+    includeFallbackModel: false,
   },
   moonshot: {
-    defaultModel: moonshotModelConfig.defaultModel,
-    models: moonshotModelConfig.models,
+    envModel: process.env.MOONSHOT_MODEL,
+    fallbackModel: 'kimi-k2.5',
+    catalog: MOONSHOT_MODEL_CATALOG,
+    includeFallbackModel: false,
   },
   iflow: {
-    defaultModel: iflowModelConfig.defaultModel,
-    models: iflowModelConfig.models,
+    envModel: process.env.IFLOW_MODEL,
+    fallbackModel: 'TBStars2-200B-A13B',
+    catalog: IFLOW_MODEL_CATALOG,
   },
 };
+
+const providerMeta: Record<ProviderId, ProviderMeta> = PROVIDER_IDS.reduce(
+  (acc, id) => {
+    const config = buildProviderModelConfig(providerModelSpecs[id]);
+    acc[id] = {
+      defaultModel: config.defaultModel,
+      models: config.models,
+    };
+    return acc;
+  },
+  {} as Record<ProviderId, ProviderMeta>
+);
 
 const providerDefinitionLoaders: Record<ProviderId, () => Promise<ProviderDefinition>> = {
   gemini: async () => (await import('./geminiProvider')).geminiProviderDefinition,

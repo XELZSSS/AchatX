@@ -7,12 +7,10 @@ import { useStreamingMessages } from './useStreamingMessages';
 import { useSearchToggle } from './useSearchToggle';
 import { useAppSettings } from './useAppSettings';
 import { Theme, applyThemeToDocument, getTheme, setTheme as persistTheme } from '../utils/theme';
+import { getUpdaterStatus, subscribeUpdaterStatus } from '../services/updaterClient';
+import type { UpdaterStatus } from '../services/updaterClient';
 
 const chatService = new ChatService();
-
-type UpdaterStatus = {
-  status: 'idle' | 'disabled' | 'checking' | 'available' | 'not-available' | 'error';
-};
 
 export const useAppController = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -58,20 +56,20 @@ export const useAppController = () => {
       }
       if (hasPromptedAvailableUpdateRef.current) return;
       hasPromptedAvailableUpdateRef.current = true;
-      const shouldOpenDownload = window.confirm('发现新版本，是否立即前往下载更新？');
+      const shouldOpenDownload = window.confirm(t('settings.update.prompt.downloadNow'));
       if (shouldOpenDownload) {
         void window.gero?.quitAndInstallUpdate?.();
       }
     };
 
-    void window.gero.getUpdaterStatus?.().then((status) => {
+    void getUpdaterStatus().then((status) => {
       if (status) {
-        promptDownloadIfNeeded(status as UpdaterStatus);
+        promptDownloadIfNeeded(status);
       }
     });
 
-    const unsubscribe = window.gero.onUpdaterStatus?.((status) => {
-      promptDownloadIfNeeded(status as UpdaterStatus);
+    const unsubscribe = subscribeUpdaterStatus((status) => {
+      promptDownloadIfNeeded(status);
     });
 
     return () => {
@@ -90,20 +88,15 @@ export const useAppController = () => {
     syncProviderState,
     isStreaming: streaming.isStreaming,
     isLoading: streaming.isLoading,
-    onCloseSidebar: () => {},
   });
   const {
     sessions,
     filteredSessions,
     currentSessionId,
     searchQuery,
-    sortBy,
-    sortOrder,
     editingSessionId,
     editTitleInput,
     setSearchQuery,
-    setSortBy,
-    setSortOrder,
     setEditTitleInput,
     startNewChat,
     handleLoadSession,
@@ -135,10 +128,6 @@ export const useAppController = () => {
     if (streaming.isStreaming || streaming.isLoading) return;
     startNewChat();
   }, [startNewChat, streaming.isLoading, streaming.isStreaming]);
-
-  const handleSortOrderToggle = useCallback(() => {
-    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-  }, [setSortOrder]);
 
   const handleToggleSearch = useCallback(() => {
     setSearchEnabled((prev) => !prev);
@@ -193,16 +182,12 @@ export const useAppController = () => {
       sessions,
       filteredSessions,
       searchQuery,
-      sortBy,
-      sortOrder,
       editingSessionId,
       editTitleInput,
       language,
       theme,
       onNewChatClick: handleNewChatClick,
       onSearchChange: setSearchQuery,
-      onSortByChange: setSortBy,
-      onSortOrderToggle: handleSortOrderToggle,
       onLoadSession: handleLoadSession,
       onStartEdit: handleStartEdit,
       onDeleteSession: handleDeleteSession,
@@ -229,7 +214,6 @@ export const useAppController = () => {
       handleStartEdit,
       handleLanguageChange,
       handleNewChatClick,
-      handleSortOrderToggle,
       handleThemeToggle,
       language,
       theme,
@@ -237,9 +221,6 @@ export const useAppController = () => {
       sessions,
       setEditTitleInput,
       setSearchQuery,
-      setSortBy,
-      sortBy,
-      sortOrder,
     ]
   );
 

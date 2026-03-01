@@ -11,16 +11,12 @@ type SidebarProps = {
   sessions: ChatSession[];
   filteredSessions: ChatSession[];
   searchQuery: string;
-  sortBy: 'createdAt' | 'updatedAt';
-  sortOrder: 'asc' | 'desc';
   editingSessionId: string | null;
   editTitleInput: string;
   language: Language;
   theme: Theme;
   onNewChatClick: () => void;
   onSearchChange: (value: string) => void;
-  onSortByChange: (value: 'createdAt' | 'updatedAt') => void;
-  onSortOrderToggle: () => void;
   onLoadSession: (session: ChatSession) => void;
   onStartEdit: (e: React.MouseEvent, session: ChatSession) => void;
   onDeleteSession: (e: React.MouseEvent, sessionId: string) => void;
@@ -39,16 +35,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({
   sessions,
   filteredSessions,
   searchQuery,
-  sortBy,
-  sortOrder,
   editingSessionId,
   editTitleInput,
   language,
   theme,
   onNewChatClick,
   onSearchChange,
-  onSortByChange,
-  onSortOrderToggle,
   onLoadSession,
   onStartEdit,
   onDeleteSession,

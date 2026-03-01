@@ -1,14 +1,6 @@
-export {};
+import type { UpdaterStatus } from '../services/updaterClient';
 
-type UpdaterStatus = {
-  status: 'idle' | 'disabled' | 'checking' | 'available' | 'not-available' | 'error';
-  message: string;
-  version: string;
-  availableVersion: string;
-  progress: number;
-  error: string;
-  downloadUrl?: string;
-};
+export {};
 
 declare global {
   interface Window {

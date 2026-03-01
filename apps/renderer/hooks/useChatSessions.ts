@@ -11,7 +11,7 @@ import {
   saveSession,
   setActiveSessionId,
   updateSessionTitle,
-} from '../utils/storage';
+} from '../services/sessionStore';
 import { isDefaultSessionTitle } from '../utils/i18n';
 
 type UseChatSessionsOptions = {
@@ -40,8 +40,6 @@ export const useChatSessions = ({
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>(() => uuidv4());
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt'>('updatedAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editTitleInput, setEditTitleInput] = useState('');
 
@@ -262,25 +260,17 @@ export const useChatSessions = ({
   const filteredSessions = useMemo(() => {
     return sessions
       .filter((session) => session.title.toLowerCase().includes(searchQuery.toLowerCase()))
-      .sort((a, b) => {
-        const valA = a[sortBy];
-        const valB = b[sortBy];
-        return sortOrder === 'asc' ? valA - valB : valB - valA;
-      });
-  }, [sessions, searchQuery, sortBy, sortOrder]);
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  }, [sessions, searchQuery]);
 
   return {
     sessions,
     filteredSessions,
     currentSessionId,
     searchQuery,
-    sortBy,
-    sortOrder,
     editingSessionId,
     editTitleInput,
     setSearchQuery,
-    setSortBy,
-    setSortOrder,
     setEditTitleInput,
     startNewChat,
     handleLoadSession,

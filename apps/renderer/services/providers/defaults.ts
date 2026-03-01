@@ -30,38 +30,22 @@ const getDefaultCustomHeaders = (providerId: ProviderId): Array<{ key: string; v
   return headers;
 };
 
+const envApiKeyResolvers: Record<ProviderId, () => string | undefined> = {
+  openai: () => sanitizeApiKey(process.env.OPENAI_API_KEY),
+  'openai-compatible': () => sanitizeApiKey(process.env.OPENAI_COMPATIBLE_API_KEY),
+  openrouter: () => sanitizeApiKey(process.env.OPENROUTER_API_KEY),
+  ollama: () => sanitizeApiKey(process.env.OLLAMA_API_KEY),
+  xai: () => sanitizeApiKey(process.env.XAI_API_KEY),
+  deepseek: () => sanitizeApiKey(process.env.DEEPSEEK_API_KEY),
+  glm: () => sanitizeApiKey(process.env.GLM_API_KEY),
+  minimax: () => sanitizeApiKey(process.env.MINIMAX_API_KEY),
+  moonshot: () => sanitizeApiKey(process.env.MOONSHOT_API_KEY),
+  iflow: () => sanitizeApiKey(process.env.IFLOW_API_KEY),
+  gemini: () => sanitizeApiKey(process.env.GEMINI_API_KEY ?? process.env.API_KEY),
+};
+
 export const getEnvApiKey = (providerId: ProviderId): string | undefined => {
-  if (providerId === 'openai') {
-    return sanitizeApiKey(process.env.OPENAI_API_KEY);
-  }
-  if (providerId === 'openai-compatible') {
-    return sanitizeApiKey(process.env.OPENAI_COMPATIBLE_API_KEY);
-  }
-  if (providerId === 'openrouter') {
-    return sanitizeApiKey(process.env.OPENROUTER_API_KEY);
-  }
-  if (providerId === 'ollama') {
-    return sanitizeApiKey(process.env.OLLAMA_API_KEY);
-  }
-  if (providerId === 'xai') {
-    return sanitizeApiKey(process.env.XAI_API_KEY);
-  }
-  if (providerId === 'deepseek') {
-    return sanitizeApiKey(process.env.DEEPSEEK_API_KEY);
-  }
-  if (providerId === 'glm') {
-    return sanitizeApiKey(process.env.GLM_API_KEY);
-  }
-  if (providerId === 'moonshot') {
-    return sanitizeApiKey(process.env.MOONSHOT_API_KEY);
-  }
-  if (providerId === 'iflow') {
-    return sanitizeApiKey(process.env.IFLOW_API_KEY);
-  }
-  if (providerId === 'minimax') {
-    return sanitizeApiKey(process.env.MINIMAX_API_KEY);
-  }
-  return sanitizeApiKey(process.env.GEMINI_API_KEY ?? process.env.API_KEY);
+  return envApiKeyResolvers[providerId]();
 };
 
 export const getDefaultProviderSettings = (providerId: ProviderId): ProviderSettings => ({

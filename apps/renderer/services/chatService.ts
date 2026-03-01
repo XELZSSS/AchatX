@@ -143,9 +143,6 @@ export class ChatService {
   }
 
   /**
-   * Generates a concise title for the chat based on the first message.
-   */
-  /**
    * Sends a message to the model and yields chunks of the response text as they stream in.
    */
   async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {

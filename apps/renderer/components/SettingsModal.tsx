@@ -8,6 +8,14 @@ import ShortcutsTab from './settingsModal/ShortcutsTab';
 import { useSettingsController } from './settingsModal/useSettingsController';
 import { ProviderSettingsMap, SaveSettingsPayload } from './settingsModal/types';
 import { Button, Modal, Tabs } from './ui';
+import {
+  checkForUpdates,
+  DEFAULT_UPDATER_STATUS,
+  getUpdaterStatus,
+  openUpdateDownload,
+  subscribeUpdaterStatus,
+} from '../services/updaterClient';
+import type { UpdaterStatus } from '../services/updaterClient';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -21,26 +29,6 @@ interface SettingsModalProps {
   tavily?: TavilyConfig;
   onSave: (value: SaveSettingsPayload) => void;
 }
-
-type UpdaterStatus = {
-  status: 'idle' | 'disabled' | 'checking' | 'available' | 'not-available' | 'error';
-  message: string;
-  version: string;
-  availableVersion: string;
-  progress: number;
-  error: string;
-  downloadUrl?: string;
-};
-
-const DEFAULT_UPDATER_STATUS: UpdaterStatus = {
-  status: 'idle',
-  message: '',
-  version: '',
-  availableVersion: '',
-  progress: 0,
-  error: '',
-  downloadUrl: '',
-};
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
@@ -58,6 +46,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const tabsIdPrefix = useId();
   const [appVersion, setAppVersion] = useState<string>('');
   const [updaterStatus, setUpdaterStatus] = useState<UpdaterStatus>(DEFAULT_UPDATER_STATUS);
+  const updaterStatusTextMap: Partial<Record<UpdaterStatus['status'], string>> = {
+    checking: t('settings.update.status.checking'),
+    'not-available': t('settings.update.status.latest'),
+    error: t('settings.update.status.failed'),
+    disabled: t('settings.update.status.disabled'),
+  };
 
   const {
     state,
@@ -93,14 +87,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       }
     };
     const loadUpdaterStatus = async () => {
-      const status = await window.gero?.getUpdaterStatus?.();
-      if (active && status) {
-        setUpdaterStatus(status);
-      }
+      const status = await getUpdaterStatus();
+      if (active) setUpdaterStatus(status);
     };
     void loadVersion();
     void loadUpdaterStatus();
-    const unsubscribe = window.gero?.onUpdaterStatus?.((status) => {
+    const unsubscribe = subscribeUpdaterStatus((status) => {
       if (!active) return;
       setUpdaterStatus(status);
     });
@@ -111,24 +103,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   }, [isOpen]);
 
   const handleCheckForUpdates = async () => {
-    await window.gero?.checkForUpdates?.();
+    await checkForUpdates();
   };
 
   const handleOpenUpdateDownload = async () => {
-    await window.gero?.quitAndInstallUpdate?.();
+    await openUpdateDownload();
   };
 
   const getUpdateStatusText = (): string => {
-    if (updaterStatus.status === 'checking') return '正在检查更新...';
     if (updaterStatus.status === 'available') {
       return updaterStatus.availableVersion
-        ? `发现新版本 v${updaterStatus.availableVersion}，可下载安装包`
-        : '发现新版本，可下载安装包';
+        ? `${t('settings.update.status.availableVersionPrefix')} v${updaterStatus.availableVersion}${t('settings.update.status.availableVersionSuffix')}`
+        : t('settings.update.status.available');
     }
-    if (updaterStatus.status === 'not-available') return '已是最新版本';
-    if (updaterStatus.status === 'error') return '更新失败，请重试';
-    if (updaterStatus.status === 'disabled') return '开发模式下不启用自动更新';
-    return '';
+    return updaterStatusTextMap[updaterStatus.status] ?? '';
   };
 
   if (!isOpen) return null;
@@ -223,11 +211,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             size="md"
             disabled={updaterStatus.status === 'checking'}
           >
-            检查更新
+            {t('settings.update.check')}
           </Button>
           {updaterStatus.status === 'available' && (
             <Button onClick={handleOpenUpdateDownload} variant="ghost" size="md">
-              下载更新
+              {t('settings.update.download')}
             </Button>
           )}
           <div className="flex h-8 items-center text-sm leading-none text-[var(--ink-3)]">

@@ -52,8 +52,9 @@ const applyResolvedGlobalTavily = (
 
 export const loadActiveProviderId = (): ProviderId => {
   const available = listProviderIds();
+  const fallbackProviderId = available[0] ?? 'gemini';
   if (typeof window === 'undefined') {
-    return available[0] ?? 'gemini';
+    return fallbackProviderId;
   }
   try {
     const stored = readAppStorage('activeProvider') as ProviderId | null;
@@ -63,7 +64,7 @@ export const loadActiveProviderId = (): ProviderId => {
   } catch (error) {
     console.error('Failed to load active provider:', error);
   }
-  return available[0] ?? 'gemini';
+  return fallbackProviderId;
 };
 
 export const persistActiveProviderId = (providerId: ProviderId): void => {

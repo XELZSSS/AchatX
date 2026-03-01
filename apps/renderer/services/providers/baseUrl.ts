@@ -101,15 +101,25 @@ export const getDefaultOllamaBaseUrl = (): string => {
   return OLLAMA_DEFAULT_BASE_URL;
 };
 
+const providerDefaultBaseUrlResolvers: Partial<Record<ProviderId, () => string | undefined>> = {
+  minimax: getDefaultMinimaxBaseUrl,
+  moonshot: getDefaultMoonshotBaseUrl,
+  glm: getDefaultGlmBaseUrl,
+  iflow: getDefaultIflowBaseUrl,
+  'openai-compatible': getDefaultOpenAICompatibleBaseUrl,
+  openrouter: getDefaultOpenRouterBaseUrl,
+  ollama: getDefaultOllamaBaseUrl,
+};
+
+const providerRegionalBaseUrlResolvers: Partial<Record<ProviderId, (r: ProviderRegion) => string>> =
+  {
+    moonshot: getMoonshotBaseUrlForRegion,
+    glm: getGlmBaseUrlForRegion,
+    minimax: getMinimaxBaseUrlForRegion,
+  };
+
 export const resolveDefaultBaseUrlForProvider = (providerId: ProviderId): string | undefined => {
-  if (providerId === 'minimax') return getDefaultMinimaxBaseUrl();
-  if (providerId === 'moonshot') return getDefaultMoonshotBaseUrl();
-  if (providerId === 'glm') return getDefaultGlmBaseUrl();
-  if (providerId === 'iflow') return getDefaultIflowBaseUrl();
-  if (providerId === 'openai-compatible') return getDefaultOpenAICompatibleBaseUrl();
-  if (providerId === 'openrouter') return getDefaultOpenRouterBaseUrl();
-  if (providerId === 'ollama') return getDefaultOllamaBaseUrl();
-  return undefined;
+  return providerDefaultBaseUrlResolvers[providerId]?.();
 };
 
 export const resolveBaseUrlForProvider = (
@@ -122,7 +132,5 @@ export const resolveBaseUrlForProvider = (
 };
 
 export const resolveBaseUrlForRegion = (providerId: ProviderId, region: ProviderRegion): string => {
-  if (providerId === 'moonshot') return getMoonshotBaseUrlForRegion(region);
-  if (providerId === 'glm') return getGlmBaseUrlForRegion(region);
-  return getMinimaxBaseUrlForRegion(region);
+  return (providerRegionalBaseUrlResolvers[providerId] ?? getMinimaxBaseUrlForRegion)(region);
 };

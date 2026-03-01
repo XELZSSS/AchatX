@@ -69,7 +69,7 @@ export const useSettingsController = ({
     setPortalContainer(overlayRef.current);
   }, [isOpen]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     persistToolCallRounds(state.toolCallMaxRounds);
 
     onSave({
@@ -81,12 +81,11 @@ export const useSettingsController = ({
       tavily: state.tavily,
     });
     onClose();
-  };
+  }, [onClose, onSave, state]);
 
   const providerActions = useMemo(
     () => ({
-      onProviderChange: (nextProviderId: Parameters<typeof handleProviderChange>[0]) =>
-        handleProviderChange(nextProviderId),
+      onProviderChange: handleProviderChange,
       onModelNameChange: (value: string) => setField('modelName', value),
       onApiKeyChange: (value: string) => setField('apiKey', value),
       onToggleApiKeyVisibility: () => setField('showApiKey', !state.showApiKey),
@@ -127,6 +126,11 @@ export const useSettingsController = ({
     [dispatch, setField, state.showTavilyKey]
   );
 
+  const handleTabChange = useCallback(
+    (id: ActiveSettingsTab) => setField('activeTab', id),
+    [setField]
+  );
+
   return {
     state,
     tabs,
@@ -135,7 +139,7 @@ export const useSettingsController = ({
     providerOptions,
     activeMeta,
     handleSave,
-    onTabChange: (id: ActiveSettingsTab) => setField('activeTab', id),
+    onTabChange: handleTabChange,
     providerActions,
     searchActions,
   };

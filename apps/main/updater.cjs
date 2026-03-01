@@ -10,7 +10,6 @@ const updaterState = {
   message: '',
   version: app.getVersion(),
   availableVersion: '',
-  progress: 0,
   error: '',
   downloadUrl: '',
 };
@@ -108,7 +107,6 @@ const initUpdater = ({ getMainWindow }) => {
     setState({
       status: 'disabled',
       message: 'Auto update is disabled in development mode.',
-      progress: 0,
       error: '',
       downloadUrl: '',
     });
@@ -122,7 +120,6 @@ const checkForUpdates = async () => {
     status: 'checking',
     message: 'Checking for updates...',
     error: '',
-    progress: 0,
   });
 
   try {

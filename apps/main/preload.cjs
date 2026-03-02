@@ -52,4 +52,5 @@ contextBridge.exposeInMainWorld('gero', {
   },
   setTrayLanguage: (language) => ipcRenderer.invoke('tray:set-language', language),
   setTrayLabels: (labels) => ipcRenderer.invoke('tray:set-labels', labels),
+  notifyBootstrapReady: () => ipcRenderer.send('app:bootstrap-ready'),
 });

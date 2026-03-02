@@ -58,7 +58,7 @@ export const getTavilyTopicOptions = (): DropdownOption[] => [
 ];
 
 const inputBaseClass =
-  'rounded-md bg-[var(--bg-2)] [background-image:none] shadow-none px-2.5 py-1.5 text-sm font-sans text-[var(--ink-1)] outline-none ring-1 ring-[var(--line-1)] focus:ring-[color:var(--ink-3)]';
+  'rounded-lg bg-[var(--bg-2)] text-[var(--ink-1)] outline-none ring-1 ring-[var(--line-1)] focus:ring-[var(--line-1)] placeholder:text-[var(--ink-3)]';
 
 export const fullInputClass = `w-full ${inputBaseClass}`;
-export const smInputClass = `w-full sm:w-72 ${inputBaseClass}`;
+export const smInputClass = `w-full sm:w-64 ${inputBaseClass}`;

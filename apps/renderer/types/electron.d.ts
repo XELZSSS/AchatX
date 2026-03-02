@@ -26,6 +26,7 @@ declare global {
         toggleDevTools: string;
         quit: string;
       }) => Promise<void>;
+      notifyBootstrapReady: () => void;
     };
   }
 }

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Trash2, Settings, Search, Edit2, Check, X, Plus, Globe, Sun, Moon } from 'lucide-react';
+import { Trash2, Settings, Search, Edit2, Check, X, Plus, Globe, Sun, Moon, MessageSquare } from 'lucide-react';
 import { ChatSession } from '../types';
 import { Language, t } from '../utils/i18n';
 import { Theme } from '../utils/theme';
@@ -70,14 +70,13 @@ const SidebarComponent: React.FC<SidebarProps> = ({
           onClick={onNewChatClick}
           variant="primary"
           size="md"
-          className="w-full flex items-center justify-center gap-2 !py-2.5 mb-6"
+          className="w-full flex items-center justify-center gap-2 !py-2 mb-4"
         >
           <Plus size={16} />
           <span>{t('sidebar.newChat')}</span>
         </Button>
 
-        {/* Search Bar */}
-        <div className="px-1 mb-3">
+        <div className="mb-3">
           <div className="relative group">
             <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--ink-3)] group-focus-within:text-[var(--ink-2)] transition-colors"
@@ -88,22 +87,22 @@ const SidebarComponent: React.FC<SidebarProps> = ({
               placeholder=""
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full rounded-lg bg-[var(--bg-2)] pl-9 pr-3 py-2 text-sm text-[var(--ink-2)] outline-none ring-1 ring-[var(--line-1)] transition-colors duration-[160ms] ease-out placeholder-[var(--ink-3)] focus:ring-[var(--line-1)]"
+              className="w-full !pl-9 !pr-3 !py-2 text-sm"
             />
           </div>
         </div>
 
-        <div ref={listContainerRef} className="flex-1 overflow-y-auto pr-1">
-          <div className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-wider mb-2 px-2">
+        <div ref={listContainerRef} className="flex-1 overflow-y-auto">
+          <div className="text-[10px] font-medium text-[var(--ink-3)] uppercase tracking-wide mb-2 px-2">
             {t('sidebar.history')}
           </div>
 
           {sessions.length === 0 ? (
-            <div className="px-2 py-2 text-sm text-[var(--ink-3)] italic">
+            <div className="px-2 py-2 text-sm text-[var(--ink-3)]">
               {t('sidebar.noConversations')}
             </div>
           ) : filteredSessions.length === 0 ? (
-            <div className="px-2 py-2 text-sm text-[var(--ink-3)] italic">
+            <div className="px-2 py-2 text-sm text-[var(--ink-3)]">
               {t('sidebar.noMatching')}
             </div>
           ) : (
@@ -120,9 +119,9 @@ const SidebarComponent: React.FC<SidebarProps> = ({
                         ? 'page'
                         : undefined
                     }
-                    className={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors duration-[160ms] ease-out text-sm border border-transparent ${
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors duration-160 ease-out text-sm ${
                       currentSessionId === session.id && editingSessionId !== session.id
-                        ? 'bg-[var(--bg-2)] text-[var(--ink-1)] border-[var(--line-1)]'
+                        ? 'bg-[var(--bg-2)] text-[var(--ink-1)]'
                         : 'text-[var(--ink-2)] hover:bg-[var(--bg-2)] hover:text-[var(--ink-1)]'
                     }`}
                   >
@@ -134,11 +133,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({
                           value={editTitleInput}
                           onChange={(e) => onEditTitleInputChange(e.target.value)}
                           onKeyDown={onEditKeyDown}
-                          className="flex-1 bg-[var(--bg-0)] text-[var(--ink-1)] text-xs px-2 py-1.5 rounded border border-[var(--line-1)] focus:outline-none focus:border-[var(--line-1)]"
+                          className="flex-1 !text-xs !px-2 !py-1.5"
+                          compact
                         />
                         <IconButton
                           onClick={onSaveEdit}
-                          className="!h-6 !w-6 !p-0 !ring-0 !bg-transparent hover:!bg-transparent shadow-none"
+                          className="!h-6 !w-6 !ring-0 !bg-transparent hover:!bg-[var(--bg-2)]"
                           aria-label={t('settings.modal.save')}
                           title={t('settings.modal.save')}
                         >
@@ -146,7 +146,8 @@ const SidebarComponent: React.FC<SidebarProps> = ({
                         </IconButton>
                         <IconButton
                           onClick={onCancelEdit}
-                          className="!h-6 !w-6 !p-0 !ring-0 !bg-transparent hover:!bg-transparent hover:text-red-400 shadow-none"
+                          danger
+                          className="!h-6 !w-6 !ring-0 !bg-transparent hover:!bg-[var(--bg-2)]"
                           aria-label={t('settings.modal.cancel')}
                           title={t('settings.modal.cancel')}
                         >
@@ -156,12 +157,13 @@ const SidebarComponent: React.FC<SidebarProps> = ({
                     ) : (
                       <>
                         <div className="flex items-center gap-2 truncate flex-1">
+                          <MessageSquare size={14} className="flex-shrink-0 text-[var(--ink-3)]" />
                           <span className="truncate">{session.title}</span>
                         </div>
-                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-[160ms] ease-out">
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-160 ease-out">
                           <IconButton
                             onClick={(e) => onStartEdit(e, session)}
-                            className="!h-7 !w-7 !p-1.5 rounded !ring-0 !bg-transparent hover:!bg-transparent shadow-none"
+                            className="!h-7 !w-7 !ring-0 !bg-transparent hover:!bg-[var(--bg-2)]"
                             aria-label={t('sidebar.editTitle')}
                             title={t('sidebar.editTitle')}
                           >
@@ -170,7 +172,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({
                           <IconButton
                             onClick={(e) => onDeleteSession(e, session.id)}
                             danger
-                            className="!h-7 !w-7 !p-1.5 rounded !ring-0 !bg-transparent hover:!bg-transparent shadow-none"
+                            className="!h-7 !w-7 !ring-0 !bg-transparent hover:!bg-[var(--bg-2)]"
                             aria-label={t('sidebar.deleteTitle')}
                             title={t('sidebar.deleteTitle')}
                           >
@@ -186,12 +188,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        <div className="mt-auto px-1 space-y-1">
+        <div className="mt-auto space-y-0.5">
           <Button
             onClick={() => onLanguageChange(language === 'en' ? 'zh-CN' : 'en')}
             variant="ghost"
             size="md"
-            className="flex items-center gap-3 text-sm w-full justify-start !bg-transparent hover:!bg-transparent focus:!bg-transparent focus-visible:!bg-transparent active:!bg-transparent"
+            className="flex items-center gap-3 text-sm w-full justify-start !bg-transparent hover:!bg-[var(--bg-2)]"
           >
             <Globe size={16} />
             <span>{language === 'en' ? t('language.en') : t('language.zhCN')}</span>
@@ -200,7 +202,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({
             onClick={onThemeToggle}
             variant="ghost"
             size="md"
-            className="flex items-center gap-3 text-sm w-full justify-start !bg-transparent hover:!bg-transparent focus:!bg-transparent focus-visible:!bg-transparent active:!bg-transparent"
+            className="flex items-center gap-3 text-sm w-full justify-start !bg-transparent hover:!bg-[var(--bg-2)]"
             aria-label={t('sidebar.toggleTheme')}
             title={t('sidebar.toggleTheme')}
           >
@@ -211,7 +213,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({
             onClick={onOpenSettings}
             variant="ghost"
             size="md"
-            className="flex items-center gap-3 text-sm w-full justify-start !bg-transparent hover:!bg-transparent focus:!bg-transparent focus-visible:!bg-transparent active:!bg-transparent"
+            className="flex items-center gap-3 text-sm w-full justify-start !bg-transparent hover:!bg-[var(--bg-2)]"
           >
             <Settings size={16} />
             <span>{t('sidebar.settings')}</span>

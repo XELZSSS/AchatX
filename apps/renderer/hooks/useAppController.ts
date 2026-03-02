@@ -22,6 +22,7 @@ export const useAppController = () => {
   const [language, setLanguageState] = useState<Language>(() => getLanguage());
   const [theme, setThemeState] = useState<Theme>(() => getTheme());
   const hasPromptedAvailableUpdateRef = useRef(false);
+  const hasNotifiedBootstrapReadyRef = useRef(false);
 
   const syncProviderState = useCallback(() => {
     setProviderState({
@@ -106,6 +107,7 @@ export const useAppController = () => {
     handleEditKeyDown,
     handleSaveEdit,
     handleCancelEdit,
+    isSessionStateReady,
   } = chatSessions;
 
   useEffect(() => {
@@ -116,6 +118,21 @@ export const useAppController = () => {
   useEffect(() => {
     applyThemeToDocument();
   }, [theme]);
+
+  useEffect(() => {
+    if (hasNotifiedBootstrapReadyRef.current) return;
+    if (!isSessionStateReady) return;
+
+    hasNotifiedBootstrapReadyRef.current = true;
+    if (typeof window === 'undefined' || !window.gero?.notifyBootstrapReady) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      window.gero?.notifyBootstrapReady();
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [isSessionStateReady]);
 
   const tavilyAvailable = Boolean(providerSettings[currentProviderId]?.tavily?.apiKey);
   const { searchEnabled, setSearchEnabled } = useSearchToggle({
@@ -139,13 +156,19 @@ export const useAppController = () => {
     setThemeState(nextTheme);
   }, [theme]);
 
+  const syncCurrentConversation = useCallback(() => {
+    void chatService.startChatWithHistory(messages).catch((error) => {
+      console.error('Failed to sync current conversation after settings change:', error);
+    });
+  }, [messages]);
+
   const { syncTrayLabels, handleSaveSettings, handleLanguageChange } = useAppSettings({
     chatService,
     providerSettings,
     currentProviderId,
     syncProviderState,
     setLanguageState,
-    startNewChat,
+    syncCurrentConversation,
   });
 
   useEffect(() => {

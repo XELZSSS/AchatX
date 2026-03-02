@@ -61,6 +61,7 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
       searchEnabled,
     ]
   );
+
   const hasMessages = messages.length > 0;
 
   useEffect(() => {
@@ -79,7 +80,6 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
 
   return (
     <main className="chat-main flex-1 flex flex-col h-full relative bg-transparent pt-0">
-      {/* Messages Container */}
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide scroll-smooth pt-0"
@@ -87,7 +87,7 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
       >
         <div
           ref={messagesContentRef}
-          className="mx-auto w-full max-w-[min(64rem,100%)] px-4 py-8 min-h-full flex flex-col"
+          className="mx-auto w-full max-w-[min(64rem,100%)] px-4 py-6 min-h-full flex flex-col"
           style={{ paddingBottom: 'calc(var(--chat-input-height, 120px) + 8px)' }}
         >
           {!hasMessages ? (
@@ -128,7 +128,6 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
         </div>
       </div>
 
-      {/* Input Area */}
       {hasMessages && showScrollToBottom && (
         <div
           className="absolute left-0 right-0 z-20 pointer-events-none"
@@ -138,7 +137,7 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
             <button
               type="button"
               onClick={onJumpToBottom}
-              className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line-1)] bg-[var(--bg-2)] text-[var(--ink-2)] shadow-sm transition-colors duration-[160ms] ease-out hover:text-[var(--ink-1)]"
+              className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--bg-2)] text-[var(--ink-2)] transition-colors duration-160 ease-out hover:text-[var(--ink-1)]"
               aria-label={t('chat.scrollToBottom')}
               title={t('chat.scrollToBottom')}
             >

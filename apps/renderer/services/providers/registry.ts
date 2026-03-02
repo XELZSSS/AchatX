@@ -1,4 +1,4 @@
-import { ChatMessage, ProviderId, TavilyConfig } from '../../types';
+import { ProviderId } from '../../types';
 import {
   DEEPSEEK_MODEL_CATALOG,
   GEMINI_MODEL_CATALOG,
@@ -14,6 +14,17 @@ import {
 } from './models';
 import { ProviderChat, ProviderDefinition } from './types';
 import { buildProviderModelConfig } from './modelConfig';
+import { geminiProviderDefinition } from './geminiProvider';
+import { openaiProviderDefinition } from './openaiProvider';
+import { openaiCompatibleProviderDefinition } from './openaiCompatibleProvider';
+import { openrouterProviderDefinition } from './openrouterProvider';
+import { ollamaProviderDefinition } from './ollamaProvider';
+import { xaiProviderDefinition } from './xaiProvider';
+import { deepseekProviderDefinition } from './deepseekProvider';
+import { glmProviderDefinition } from './glmProvider';
+import { minimaxProviderDefinition } from './minimaxProvider';
+import { moonshotProviderDefinition } from './moonshotProvider';
+import { iflowProviderDefinition } from './iflowProvider';
 
 const PROVIDER_IDS: ProviderId[] = [
   'gemini',
@@ -112,166 +123,32 @@ const providerMeta: Record<ProviderId, ProviderMeta> = PROVIDER_IDS.reduce(
   {} as Record<ProviderId, ProviderMeta>
 );
 
-const providerDefinitionLoaders: Record<ProviderId, () => Promise<ProviderDefinition>> = {
-  gemini: async () => (await import('./geminiProvider')).geminiProviderDefinition,
-  openai: async () => (await import('./openaiProvider')).openaiProviderDefinition,
-  'openai-compatible': async () =>
-    (await import('./openaiCompatibleProvider')).openaiCompatibleProviderDefinition,
-  openrouter: async () => (await import('./openrouterProvider')).openrouterProviderDefinition,
-  ollama: async () => (await import('./ollamaProvider')).ollamaProviderDefinition,
-  xai: async () => (await import('./xaiProvider')).xaiProviderDefinition,
-  deepseek: async () => (await import('./deepseekProvider')).deepseekProviderDefinition,
-  glm: async () => (await import('./glmProvider')).glmProviderDefinition,
-  minimax: async () => (await import('./minimaxProvider')).minimaxProviderDefinition,
-  moonshot: async () => (await import('./moonshotProvider')).moonshotProviderDefinition,
-  iflow: async () => (await import('./iflowProvider')).iflowProviderDefinition,
+const providerDefinitionsById: Record<ProviderId, ProviderDefinition> = {
+  gemini: geminiProviderDefinition,
+  openai: openaiProviderDefinition,
+  'openai-compatible': openaiCompatibleProviderDefinition,
+  openrouter: openrouterProviderDefinition,
+  ollama: ollamaProviderDefinition,
+  xai: xaiProviderDefinition,
+  deepseek: deepseekProviderDefinition,
+  glm: glmProviderDefinition,
+  minimax: minimaxProviderDefinition,
+  moonshot: moonshotProviderDefinition,
+  iflow: iflowProviderDefinition,
 };
-
-class LazyProvider implements ProviderChat {
-  private loadedProvider: ProviderChat | null = null;
-  private loadingProvider: Promise<ProviderChat> | null = null;
-  private modelName: string;
-  private apiKey?: string;
-  private baseUrl?: string;
-  private customHeaders?: Array<{ key: string; value: string }>;
-  private tavilyConfig?: TavilyConfig;
-  private historySnapshot: ChatMessage[] = [];
-  private historyVersion = 0;
-  private syncedHistoryVersion = 0;
-
-  constructor(
-    private readonly id: ProviderId,
-    defaultModel: string,
-    private readonly loadDefinition: () => Promise<ProviderDefinition>
-  ) {
-    this.modelName = defaultModel;
-  }
-
-  private cloneHistory(messages: ChatMessage[]): ChatMessage[] {
-    return messages.map((msg) => ({ ...msg }));
-  }
-
-  private applyCachedState(provider: ProviderChat): void {
-    provider.setModelName(this.modelName);
-    provider.setApiKey(this.apiKey);
-    if (provider.setBaseUrl) {
-      provider.setBaseUrl(this.baseUrl);
-    }
-    if (provider.setCustomHeaders) {
-      provider.setCustomHeaders(this.customHeaders ?? []);
-    }
-    if (provider.setTavilyConfig) {
-      provider.setTavilyConfig(this.tavilyConfig);
-    }
-  }
-
-  private async syncHistoryIfNeeded(provider: ProviderChat): Promise<void> {
-    if (this.syncedHistoryVersion === this.historyVersion) return;
-    await provider.startChatWithHistory(this.cloneHistory(this.historySnapshot));
-    this.syncedHistoryVersion = this.historyVersion;
-  }
-
-  private async ensureProvider(): Promise<ProviderChat> {
-    if (this.loadedProvider) {
-      await this.syncHistoryIfNeeded(this.loadedProvider);
-      return this.loadedProvider;
-    }
-
-    if (!this.loadingProvider) {
-      this.loadingProvider = this.loadDefinition().then((definition) => {
-        const provider = definition.create();
-        this.applyCachedState(provider);
-        this.loadedProvider = provider;
-        return provider;
-      });
-    }
-
-    const provider = await this.loadingProvider;
-    await this.syncHistoryIfNeeded(provider);
-    return provider;
-  }
-
-  getId(): ProviderId {
-    return this.id;
-  }
-
-  getModelName(): string {
-    return this.loadedProvider?.getModelName() ?? this.modelName;
-  }
-
-  setModelName(model: string): void {
-    this.modelName = model;
-    this.loadedProvider?.setModelName(model);
-  }
-
-  getApiKey(): string | undefined {
-    return this.loadedProvider?.getApiKey() ?? this.apiKey;
-  }
-
-  setApiKey(apiKey?: string): void {
-    this.apiKey = apiKey;
-    this.loadedProvider?.setApiKey(apiKey);
-  }
-
-  getBaseUrl(): string | undefined {
-    if (!this.loadedProvider?.getBaseUrl) return this.baseUrl;
-    return this.loadedProvider.getBaseUrl();
-  }
-
-  setBaseUrl(baseUrl?: string): void {
-    this.baseUrl = baseUrl;
-    this.loadedProvider?.setBaseUrl?.(baseUrl);
-  }
-
-  getCustomHeaders(): Array<{ key: string; value: string }> | undefined {
-    if (!this.loadedProvider?.getCustomHeaders) return this.customHeaders;
-    return this.loadedProvider.getCustomHeaders();
-  }
-
-  setCustomHeaders(headers: Array<{ key: string; value: string }>): void {
-    this.customHeaders = [...headers];
-    this.loadedProvider?.setCustomHeaders?.([...headers]);
-  }
-
-  getTavilyConfig(): TavilyConfig | undefined {
-    if (!this.loadedProvider?.getTavilyConfig) return this.tavilyConfig;
-    return this.loadedProvider.getTavilyConfig();
-  }
-
-  setTavilyConfig(config: TavilyConfig | undefined): void {
-    this.tavilyConfig = config;
-    this.loadedProvider?.setTavilyConfig?.(config);
-  }
-
-  resetChat(): void {
-    this.historySnapshot = [];
-    this.historyVersion += 1;
-    this.syncedHistoryVersion = 0;
-    this.loadedProvider?.resetChat();
-  }
-
-  async startChatWithHistory(messages: ChatMessage[]): Promise<void> {
-    this.historySnapshot = this.cloneHistory(messages);
-    this.historyVersion += 1;
-    if (!this.loadedProvider) return;
-    await this.loadedProvider.startChatWithHistory(this.cloneHistory(this.historySnapshot));
-    this.syncedHistoryVersion = this.historyVersion;
-  }
-
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
-    const provider = await this.ensureProvider();
-    yield* provider.sendMessageStream(message);
-  }
-}
 
 const definitions: Record<ProviderId, ProviderDefinition> = PROVIDER_IDS.reduce(
   (acc, id) => {
+    const sourceDefinition = providerDefinitionsById[id];
     acc[id] = {
       id,
       models: providerMeta[id].models,
       defaultModel: providerMeta[id].defaultModel,
-      create: () =>
-        new LazyProvider(id, providerMeta[id].defaultModel, providerDefinitionLoaders[id]),
+      create: () => {
+        const provider = sourceDefinition.create();
+        provider.setModelName(providerMeta[id].defaultModel);
+        return provider;
+      },
     };
     return acc;
   },

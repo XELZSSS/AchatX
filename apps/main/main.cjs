@@ -1,4 +1,4 @@
-/* global __dirname, setTimeout */
+/* global __dirname, setTimeout, setImmediate, console */
 const { app, Menu, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -45,7 +45,9 @@ app.on('activate', () => {
   if (getMainWindow()) {
     showWindow();
   } else {
-    createMainWindow({ isDev, shouldPreventClose: () => !isQuitting });
+    void createMainWindow({ isDev, shouldPreventClose: () => !isQuitting }).catch((error) => {
+      console.error('Failed to recreate main window on activate:', error);
+    });
   }
 });
 
@@ -59,17 +61,21 @@ app.whenReady().then(() => {
     quitAndInstall,
     getUpdaterState,
   });
-  initUpdater({ getMainWindow });
-  startProxy(isDev);
-  createTray({
-    isDev,
-    getMainWindow,
-    showWindow,
-    onQuit: () => {
-      isQuitting = true;
-    },
+  void createMainWindow({ isDev, shouldPreventClose: () => !isQuitting }).catch((error) => {
+    console.error('Failed to create main window:', error);
   });
-  createMainWindow({ isDev, shouldPreventClose: () => !isQuitting });
+  setImmediate(() => {
+    startProxy(isDev);
+    createTray({
+      isDev,
+      getMainWindow,
+      showWindow,
+      onQuit: () => {
+        isQuitting = true;
+      },
+    });
+    initUpdater({ getMainWindow });
+  });
   setTimeout(() => {
     void checkForUpdates();
   }, 15000);

@@ -42,6 +42,7 @@ export const useChatSessions = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editTitleInput, setEditTitleInput] = useState('');
+  const [isSessionStateReady, setIsSessionStateReady] = useState(false);
 
   const sessionsRef = useRef<ChatSession[]>([]);
   const saveSessionTimerRef = useRef<number | null>(null);
@@ -113,11 +114,13 @@ export const useChatSessions = ({
       const newId = uuidv4();
       setCurrentSessionId(newId);
       setActiveSessionId(newId);
+      setIsSessionStateReady(true);
       return;
     }
 
     activateSessionContext(activeSession);
     scrollToBottom('auto');
+    setIsSessionStateReady(true);
   }, [activateSessionContext, scrollToBottom]);
 
   useEffect(() => {
@@ -280,5 +283,6 @@ export const useChatSessions = ({
     handleSaveEdit,
     handleEditInputClick,
     handleEditKeyDown,
+    isSessionStateReady,
   };
 };

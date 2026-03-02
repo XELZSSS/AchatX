@@ -18,7 +18,7 @@ const KeyCaps: React.FC<{ keys: string[] }> = ({ keys }) => (
   <div className="flex flex-wrap items-center gap-1">
     {keys.map((key, index) => (
       <React.Fragment key={`${key}-${index}`}>
-        <kbd className="rounded-md border border-[var(--line-1)] bg-[var(--bg-2)] px-2 py-1 text-[11px] font-medium text-[var(--ink-2)]">
+        <kbd className="rounded-lg border border-[var(--line-1)] bg-[var(--bg-2)] px-2 py-1 text-[11px] font-medium text-[var(--ink-2)]">
           {key}
         </kbd>
         {index < keys.length - 1 && (
@@ -35,7 +35,7 @@ const ShortcutsTab: React.FC = () => {
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <h3 className="text-xs font-semibold text-[var(--ink-2)]">
+        <h3 className="text-xs font-medium text-[var(--ink-2)]">
           {t('settings.modal.shortcuts.title')}
         </h3>
         <p className="text-xs text-[var(--ink-3)]">{t('settings.modal.shortcuts.hint')}</p>

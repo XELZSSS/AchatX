@@ -12,6 +12,7 @@ const WINDOW_BG_BY_THEME = {
   dark: '#09090b',
   light: '#f5f7fb',
 };
+const BOOTSTRAP_SHOW_TIMEOUT_MS = 12000;
 
 let mainWindow = null;
 let saveTimer = null;
@@ -28,9 +29,9 @@ const isTheme = (value) => value === 'dark' || value === 'light';
 const getWindowBackgroundColor = (theme) =>
   theme === 'light' ? WINDOW_BG_BY_THEME.light : WINDOW_BG_BY_THEME.dark;
 
-const loadThemeState = () => {
+const loadThemeState = async () => {
   try {
-    const raw = fs.readFileSync(THEME_STATE_FILE, 'utf-8');
+    const raw = await fs.promises.readFile(THEME_STATE_FILE, 'utf-8');
     const parsed = JSON.parse(raw);
     return isTheme(parsed?.theme) ? parsed.theme : DEFAULT_THEME;
   } catch {
@@ -56,9 +57,9 @@ const applyWindowTheme = (theme, { persist = false } = {}) => {
   return resolved;
 };
 
-const loadWindowState = () => {
+const loadWindowState = async () => {
   try {
-    const raw = fs.readFileSync(WINDOW_STATE_FILE, 'utf-8');
+    const raw = await fs.promises.readFile(WINDOW_STATE_FILE, 'utf-8');
     return { ...DEFAULT_WINDOW_STATE, ...JSON.parse(raw) };
   } catch {
     return { ...DEFAULT_WINDOW_STATE };
@@ -129,8 +130,8 @@ const loadWindowContent = async (win, isDev) => {
 };
 
 const createMainWindow = async ({ isDev, shouldPreventClose }) => {
-  const state = loadWindowState();
-  const initialTheme = applyWindowTheme(loadThemeState());
+  const [state, theme] = await Promise.all([loadWindowState(), loadThemeState()]);
+  const initialTheme = applyWindowTheme(theme);
 
   mainWindow = new BrowserWindow({
     width: state.width,
@@ -161,8 +162,35 @@ const createMainWindow = async ({ isDev, shouldPreventClose }) => {
     mainWindow.maximize();
   }
 
-  mainWindow.once('ready-to-show', () => {
+  let didFinishLoad = false;
+  let rendererBootstrapReady = false;
+  let hasShownWindow = false;
+
+  const tryShowMainWindow = () => {
+    if (!mainWindow || mainWindow.isDestroyed() || hasShownWindow) return;
+    if (!didFinishLoad || !rendererBootstrapReady) return;
+    hasShownWindow = true;
     mainWindow.show();
+  };
+
+  const onBootstrapReady = (event) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (event.sender !== mainWindow.webContents) return;
+    rendererBootstrapReady = true;
+    tryShowMainWindow();
+  };
+
+  ipcMain.on('app:bootstrap-ready', onBootstrapReady);
+
+  const bootstrapTimeout = setTimeout(() => {
+    if (!mainWindow || mainWindow.isDestroyed() || hasShownWindow) return;
+    hasShownWindow = true;
+    mainWindow.show();
+  }, BOOTSTRAP_SHOW_TIMEOUT_MS);
+
+  mainWindow.webContents.once('did-finish-load', () => {
+    didFinishLoad = true;
+    tryShowMainWindow();
   });
 
   mainWindow.on('close', (event) => {
@@ -174,6 +202,8 @@ const createMainWindow = async ({ isDev, shouldPreventClose }) => {
     scheduleWindowStateSave(mainWindow);
   });
   mainWindow.on('closed', () => {
+    clearTimeout(bootstrapTimeout);
+    ipcMain.removeListener('app:bootstrap-ready', onBootstrapReady);
     if (saveTimer) {
       clearTimeout(saveTimer);
       saveTimer = null;

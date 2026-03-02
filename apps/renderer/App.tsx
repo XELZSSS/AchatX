@@ -1,10 +1,9 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { useAppController } from './hooks/useAppController';
 import Sidebar from './components/Sidebar';
 import ChatMain from './components/ChatMain';
 import TitleBar from './components/TitleBar';
-
-const SettingsModal = lazy(() => import('./components/SettingsModal'));
+import SettingsModal from './components/SettingsModal';
 
 function App() {
   const { settingsModalProps, sidebarProps, chatMainProps } = useAppController();
@@ -14,9 +13,7 @@ function App() {
       <TitleBar />
 
       {/* Settings Modal */}
-      <Suspense fallback={null}>
-        <SettingsModal {...settingsModalProps} />
-      </Suspense>
+      <SettingsModal {...settingsModalProps} />
 
       {/* Sidebar */}
       <Sidebar {...sidebarProps} />

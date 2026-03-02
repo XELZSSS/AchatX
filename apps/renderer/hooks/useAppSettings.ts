@@ -10,7 +10,7 @@ type UseAppSettingsOptions = {
   currentProviderId: ProviderId;
   syncProviderState: () => void;
   setLanguageState: Dispatch<SetStateAction<Language>>;
-  startNewChat: () => void;
+  syncCurrentConversation: () => void;
 };
 
 export const useAppSettings = ({
@@ -19,7 +19,7 @@ export const useAppSettings = ({
   currentProviderId,
   syncProviderState,
   setLanguageState,
-  startNewChat,
+  syncCurrentConversation,
 }: UseAppSettingsOptions) => {
   const syncTrayLabels = useCallback((language: Language) => {
     window.gero?.setTrayLanguage?.(language);
@@ -43,7 +43,7 @@ export const useAppSettings = ({
       });
       syncProviderState();
       const prev = providerSettings[value.providerId];
-      const shouldRestart =
+      const shouldSyncConversation =
         value.providerId !== currentProviderId ||
         !prev ||
         prev.modelName !== updatedSettings.modelName ||
@@ -52,11 +52,11 @@ export const useAppSettings = ({
         JSON.stringify(prev.customHeaders ?? []) !==
           JSON.stringify(updatedSettings.customHeaders ?? []) ||
         JSON.stringify(prev.tavily ?? {}) !== JSON.stringify(updatedSettings.tavily ?? {});
-      if (shouldRestart) {
-        startNewChat();
+      if (shouldSyncConversation) {
+        syncCurrentConversation();
       }
     },
-    [chatService, currentProviderId, providerSettings, syncProviderState, startNewChat]
+    [chatService, currentProviderId, providerSettings, syncCurrentConversation, syncProviderState]
   );
 
   const handleLanguageChange = useCallback(

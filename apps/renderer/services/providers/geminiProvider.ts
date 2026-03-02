@@ -1,14 +1,14 @@
-import type {
-  Chat,
-  Content,
-  FunctionDeclaration,
-  GenerateContentResponse,
+import {
   GoogleGenAI,
-  Part,
-  ThinkingConfig,
-  ThinkingLevel,
-  Type,
-  ToolListUnion,
+  type Chat,
+  type Content,
+  type FunctionDeclaration,
+  type GenerateContentResponse,
+  type Part,
+  type ThinkingConfig,
+  type ThinkingLevel,
+  type Type,
+  type ToolListUnion,
 } from '@google/genai';
 import { ChatMessage, ProviderId, Role, TavilyConfig } from '../../types';
 import { ProviderChat, ProviderDefinition } from './types';
@@ -58,21 +58,6 @@ const extractGeminiChunkPayload = (response: GenerateContentResponse): GeminiChu
   return { content, reasoning };
 };
 
-let googleGenAIConstructorPromise: Promise<
-  new (options: { apiKey: string }) => GoogleGenAI
-> | null = null;
-
-const loadGoogleGenAIConstructor = async (): Promise<
-  new (options: { apiKey: string }) => GoogleGenAI
-> => {
-  if (!googleGenAIConstructorPromise) {
-    googleGenAIConstructorPromise = import('@google/genai').then(
-      (module) => module.GoogleGenAI as new (options: { apiKey: string }) => GoogleGenAI
-    );
-  }
-  return googleGenAIConstructorPromise;
-};
-
 const DEFAULT_GEMINI_API_KEY = sanitizeApiKey(process.env.GEMINI_API_KEY ?? process.env.API_KEY);
 class GeminiProvider implements ProviderChat {
   private readonly id: ProviderId = GEMINI_PROVIDER_ID;
@@ -95,8 +80,7 @@ class GeminiProvider implements ProviderChat {
       throw new Error('Missing Gemini API key');
     }
     if (!this.client) {
-      const GoogleGenAIConstructor = await loadGoogleGenAIConstructor();
-      this.client = new GoogleGenAIConstructor({ apiKey: this.apiKey });
+      this.client = new GoogleGenAI({ apiKey: this.apiKey });
     }
     return this.client;
   }

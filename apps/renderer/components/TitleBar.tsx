@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { t } from '../utils/i18n';
+
 const WinIcon = ({ type }: { type: 'min' | 'max' | 'close' }) => {
   switch (type) {
     case 'min':

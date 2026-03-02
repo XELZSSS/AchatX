@@ -95,7 +95,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           setOpen((prev) => !prev);
         }}
         onKeyDown={handleTriggerKeyDown}
-        className="flex w-full items-center justify-between rounded-md bg-[var(--bg-2)] [background-image:none] shadow-none px-2.5 py-1.5 text-xs font-sans text-[var(--ink-2)] outline-none ring-1 ring-[var(--line-1)] focus:ring-[var(--line-1)]"
+        className="flex w-full items-center justify-between rounded-lg bg-[var(--bg-2)] px-2.5 py-1.5 text-xs text-[var(--ink-2)] outline-none ring-1 ring-[var(--line-1)] focus:ring-[var(--line-1)]"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listboxId : undefined}
@@ -108,7 +108,7 @@ const Dropdown: React.FC<DropdownProps> = ({
             <div
               ref={menuRef}
               id={listboxId}
-              className={`fixed z-[80] max-h-56 overflow-auto scrollbar-hide rounded-md border border-[var(--line-1)] bg-[var(--bg-2)] p-1.5 shadow-none transition-opacity transition-transform duration-[120ms] ease-out motion-reduce:transition-none ${
+              className={`fixed z-[80] max-h-56 overflow-auto scrollbar-hide rounded-lg border border-[var(--line-1)] bg-[var(--bg-2)] p-1 transition-opacity transition-transform duration-120 ease-out motion-reduce:transition-none ${
                 menuReady
                   ? 'opacity-100 pointer-events-auto'
                   : 'opacity-0 pointer-events-none'
@@ -124,7 +124,7 @@ const Dropdown: React.FC<DropdownProps> = ({
               onKeyDown={handleMenuKeyDown}
             >
               {options.map((option, index) => (
-                <div key={option.value} className="px-1.5 py-0.5">
+                <div key={option.value} className="px-1 py-0.5">
                   <button
                     ref={(node) => {
                       optionRefs.current[index] = node;
@@ -132,12 +132,12 @@ const Dropdown: React.FC<DropdownProps> = ({
                     type="button"
                     onClick={() => selectOption(index)}
                     onMouseEnter={() => setFocusedIndex(index)}
-                    className={`flex w-full items-center rounded-md px-2.5 py-1.5 text-xs font-sans transition-colors duration-[120ms] ease-out ${
+                    className={`flex w-full items-center rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-120 ease-out ${
                       focusedIndex === index
-                        ? 'bg-white/10 text-[var(--ink-1)]'
+                        ? 'bg-[var(--bg-1)] text-[var(--ink-1)]'
                         : option.value === value
-                          ? 'bg-white/10 text-[var(--ink-1)]'
-                          : 'text-[var(--ink-2)] hover:bg-white/5 hover:text-[var(--ink-1)]'
+                          ? 'bg-[var(--bg-1)] text-[var(--ink-1)]'
+                          : 'text-[var(--ink-2)] hover:bg-[var(--bg-1)] hover:text-[var(--ink-1)]'
                     }`}
                     role="option"
                     aria-selected={option.value === value}

@@ -11,9 +11,6 @@ export interface ChatMessage {
   timeLabel?: string;
   isError?: boolean;
   reasoning?: string;
-  imageUrl?: string;
-  imageDataUrl?: string;
-  imageAlt?: string;
 }
 
 export interface ChatState {

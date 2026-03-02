@@ -5,7 +5,7 @@ import { t } from '../../utils/i18n';
 import { getProviderDefaultModel } from '../../services/providers/registry';
 import Dropdown, { DropdownOption } from '../settings/Dropdown';
 import { DEFAULT_MAX_TOOL_CALL_ROUNDS } from '../../services/providers/utils';
-import { fullInputClass, resolveBaseUrlForRegion, smInputClass } from './constants';
+import { fullInputClass, smInputClass, resolveBaseUrlForRegion } from './constants';
 import { Button, Field, Input } from '../ui';
 
 type ProviderTabProps = {
@@ -102,39 +102,37 @@ const ProviderTab: React.FC<ProviderTabProps> = ({
       </Field>
 
       <div className="space-y-2">
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-[var(--ink-2)]">
-            {t('settings.modal.apiKey')}
-          </label>
-          <div className="relative">
-            <Input
-              type={showApiKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={(event) => onApiKeyChange(event.target.value)}
-              className={`${fullInputClass} pr-20`}
-              autoComplete="off"
-            />
-            <div className="absolute inset-y-0 right-2 flex items-center gap-1.5">
-              <Button
-                onClick={onToggleApiKeyVisibility}
-                variant="ghost"
-                size="sm"
-                className="!px-0 !py-0 h-auto"
-                aria-label={showApiKey ? t('settings.apiKey.hide') : t('settings.apiKey.show')}
-              >
-                {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
-              </Button>
-              <Button
-                onClick={onClearApiKey}
-                variant="ghost"
-                size="sm"
-                className="!px-0 !py-0 h-auto hover:text-red-400"
-                aria-label={t('settings.apiKey.clear')}
-                title={t('settings.apiKey.clear')}
-              >
-                <Trash2 size={16} />
-              </Button>
-            </div>
+        <label className="text-xs font-medium text-[var(--ink-2)]">
+          {t('settings.modal.apiKey')}
+        </label>
+        <div className="relative">
+          <Input
+            type={showApiKey ? 'text' : 'password'}
+            value={apiKey}
+            onChange={(event) => onApiKeyChange(event.target.value)}
+            className={`${fullInputClass} pr-20`}
+            autoComplete="off"
+          />
+          <div className="absolute inset-y-0 right-2 flex items-center gap-1.5">
+            <Button
+              onClick={onToggleApiKeyVisibility}
+              variant="ghost"
+              size="sm"
+              className="!px-0 !py-0 h-auto"
+              aria-label={showApiKey ? t('settings.apiKey.hide') : t('settings.apiKey.show')}
+            >
+              {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+            </Button>
+            <Button
+              onClick={onClearApiKey}
+              variant="ghost"
+              size="sm"
+              className="!px-0 !py-0 h-auto hover:text-red-400"
+              aria-label={t('settings.apiKey.clear')}
+              title={t('settings.apiKey.clear')}
+            >
+              <Trash2 size={16} />
+            </Button>
           </div>
         </div>
       </div>
@@ -225,20 +223,18 @@ const ProviderTab: React.FC<ProviderTabProps> = ({
 
       {supportsRegion && (
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <label className="text-xs font-medium text-[var(--ink-2)]">
-              {t('settings.modal.region')}
-            </label>
-          </div>
+          <label className="text-xs font-medium text-[var(--ink-2)]">
+            {t('settings.modal.region')}
+          </label>
           <div className="flex gap-2">
             <Button
               onClick={() => onSetRegionBaseUrl('intl')}
               size="sm"
               variant="ghost"
-              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 ring-[var(--line-1)] transition-colors duration-[160ms] ease-out ${
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 ring-[var(--line-1)] transition-colors duration-160 ease-out ${
                 baseUrl === resolveBaseUrlForRegion(providerId, 'intl')
-                  ? 'bg-[var(--bg-2)] text-[var(--ink-1)] hover:bg-[var(--bg-2)] focus:bg-[var(--bg-2)] active:bg-[var(--bg-2)]'
-                  : 'bg-transparent text-[var(--ink-3)] hover:bg-transparent focus:bg-transparent active:bg-transparent hover:text-[var(--ink-1)]'
+                  ? 'bg-[var(--bg-2)] text-[var(--ink-1)]'
+                  : 'text-[var(--ink-3)] hover:bg-[var(--bg-2)] hover:text-[var(--ink-1)]'
               }`}
             >
               {t('settings.modal.region.international')}
@@ -247,10 +243,10 @@ const ProviderTab: React.FC<ProviderTabProps> = ({
               onClick={() => onSetRegionBaseUrl('cn')}
               size="sm"
               variant="ghost"
-              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 ring-[var(--line-1)] transition-colors duration-[160ms] ease-out ${
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 ring-[var(--line-1)] transition-colors duration-160 ease-out ${
                 baseUrl === resolveBaseUrlForRegion(providerId, 'cn')
-                  ? 'bg-[var(--bg-2)] text-[var(--ink-1)] hover:bg-[var(--bg-2)] focus:bg-[var(--bg-2)] active:bg-[var(--bg-2)]'
-                  : 'bg-transparent text-[var(--ink-3)] hover:bg-transparent focus:bg-transparent active:bg-transparent hover:text-[var(--ink-1)]'
+                  ? 'bg-[var(--bg-2)] text-[var(--ink-1)]'
+                  : 'text-[var(--ink-3)] hover:bg-[var(--bg-2)] hover:text-[var(--ink-1)]'
               }`}
             >
               {t('settings.modal.region.china')}

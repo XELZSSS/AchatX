@@ -128,7 +128,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       ariaLabelledBy={modalTitleId}
     >
       <div className="w-full">
-        <div className="flex items-center justify-between p-3 pb-1.5">
+        <div className="flex items-center justify-between p-3 pb-2">
           <h2 id={modalTitleId} className="text-sm font-semibold text-[var(--ink-1)]">
             {t('settings.modal.title')}
           </h2>
@@ -136,7 +136,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="!px-1.5 !py-1 !bg-transparent hover:!bg-transparent text-[var(--ink-3)] hover:text-[var(--ink-1)]"
+            className="!px-1.5 !py-1 !bg-transparent hover:!bg-[var(--bg-2)] text-[var(--ink-3)] hover:text-[var(--ink-1)]"
             aria-label={t('settings.modal.cancel')}
           >
             <X size={18} />
@@ -152,7 +152,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           />
 
           <div
-            className="flex-1 overflow-y-auto pl-2 pr-4 pt-2 sm:pl-4 sm:pr-6 sm:pt-3"
+            className="flex-1 overflow-y-auto pl-2 pr-4 pt-1 sm:pl-4 sm:pr-6 sm:pt-2"
             role="tabpanel"
             id={`${tabsIdPrefix}-panel-${state.activeTab}`}
             aria-labelledby={`${tabsIdPrefix}-tab-${state.activeTab}`}
@@ -201,31 +201,31 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-3 pt-1.5">
+        <div className="flex items-center justify-end gap-3 p-3 pt-2">
           <div className="mr-auto text-xs text-[var(--ink-3)]">{getUpdateStatusText()}</div>
           <Button
             onClick={handleCheckForUpdates}
             variant="ghost"
-            size="md"
+            size="sm"
             disabled={updaterStatus.status === 'checking'}
           >
             {t('settings.update.check')}
           </Button>
           {updaterStatus.status === 'available' && (
-            <Button onClick={handleOpenUpdateDownload} variant="ghost" size="md">
+            <Button onClick={handleOpenUpdateDownload} variant="ghost" size="sm">
               {t('settings.update.download')}
             </Button>
           )}
-          <div className="flex h-8 items-center text-sm leading-none text-[var(--ink-3)]">
+          <div className="flex h-8 items-center text-xs text-[var(--ink-3)]">
             {appVersion ? `v${appVersion}` : ''}
           </div>
-          <Button onClick={onClose} variant="ghost" size="md">
+          <Button onClick={onClose} variant="ghost" size="sm">
             {t('settings.modal.cancel')}
           </Button>
           <Button
             onClick={handleSave}
             variant="primary"
-            size="md"
+            size="sm"
             className="flex items-center gap-2"
           >
             <Save size={14} />

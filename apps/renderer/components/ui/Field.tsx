@@ -6,13 +6,16 @@ type FieldProps = {
   actions?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  id?: string;
 };
 
-const Field: React.FC<FieldProps> = ({ label, actions, children, className = '' }) => {
+const Field: React.FC<FieldProps> = ({ label, actions, children, className, id }) => {
   return (
     <div className={cn('space-y-2', className)}>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-[var(--ink-2)]">{label}</span>
+        <label htmlFor={id} className="text-xs font-medium text-[var(--ink-2)]">
+          {label}
+        </label>
         {actions}
       </div>
       {children}

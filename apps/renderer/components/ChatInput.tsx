@@ -127,37 +127,38 @@ const ChatInputComponent: React.FC<ChatInputProps> = ({
       ref={containerRef}
       className={`mx-auto w-full max-w-[min(64rem,100%)] px-4 pb-6 ${containerClassName ?? ''}`}
     >
-      <div className="relative flex items-end gap-2 bg-[var(--bg-2)] [background-image:none] border border-[var(--line-1)] rounded-[var(--radius-2)] p-2 shadow-none transition-colors duration-[160ms] ease-out">
+      <div className="relative flex items-end gap-2 bg-[var(--bg-2)] border border-[var(--line-1)] rounded-xl p-2 transition-colors duration-160 ease-out">
         <textarea
           ref={textareaRef}
           value={input}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="w-full bg-transparent [background-image:none] shadow-none text-[var(--ink-1)] placeholder-[var(--ink-3)] text-sm p-3 max-h-[150px] resize-none focus:outline-none scrollbar-hide"
+          className="w-full bg-transparent text-[var(--ink-1)] placeholder:text-[var(--ink-3)] text-sm px-3 py-2.5 max-h-[150px] resize-none focus:outline-none scrollbar-hide"
           rows={1}
           disabled={disabled && !isStreaming}
         />
-        <div className="pb-1 pr-1 flex items-center gap-2">
-          <IconButton
+        <div className="flex items-center gap-2 pb-2.5 pr-1">
+          <button
+            type="button"
             onClick={onToggleSearch}
             disabled={!searchAvailable || (disabled && !isStreaming)}
             aria-pressed={searchEnabled}
             aria-label={searchToggleLabel}
             title={searchToggleLabel}
-            className={`h-9 w-9 rounded-full transition-colors transition-opacity duration-[160ms] ease-out flex items-center justify-center ring-1 ${
+            className={`p-1 rounded-lg transition-colors duration-160 ease-out ${
               searchEnabled
-                ? 'bg-white/10 text-[var(--ink-1)] ring-[var(--line-1)]'
-                : 'bg-[var(--bg-2)] text-[var(--ink-3)] ring-[var(--line-1)]'
+                ? 'text-[#3b82f6]'
+                : 'text-[var(--ink-3)] hover:text-[#3b82f6]'
             } ${
               searchAvailable && !(disabled && !isStreaming)
-                ? 'hover:bg-white/5 hover:text-[var(--ink-1)]'
+                ? ''
                 : 'opacity-50 cursor-not-allowed'
             }`}
-            active={searchEnabled}
           >
             <Search size={18} />
-          </IconButton>
-          <IconButton
+          </button>
+          <button
+            type="button"
             onClick={() => {
               if (isStreaming) {
                 onStop();
@@ -168,10 +169,14 @@ const ChatInputComponent: React.FC<ChatInputProps> = ({
             disabled={(!input.trim() && !isStreaming) || (disabled && !isStreaming)}
             aria-label={sendActionLabel}
             title={sendActionLabel}
-            className={`h-9 w-9 rounded-full transition-colors duration-[160ms] ease-out flex items-center justify-center ${
+            className={`p-1 rounded-lg transition-colors duration-160 ease-out ${
               input.trim() || isStreaming
-                ? 'bg-[var(--accent)] text-[#1a1a1a] hover:bg-[var(--accent-strong)]'
-                : 'bg-[var(--bg-2)] text-[var(--ink-3)] cursor-not-allowed'
+                ? 'text-[#3b82f6] hover:text-[#2563eb]'
+                : 'text-[var(--ink-3)]'
+            } ${
+              (!input.trim() && !isStreaming) || (disabled && !isStreaming)
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
             }`}
           >
             {isStreaming ? (
@@ -181,7 +186,7 @@ const ChatInputComponent: React.FC<ChatInputProps> = ({
             ) : (
               <Send size={18} />
             )}
-          </IconButton>
+          </button>
         </div>
       </div>
     </div>

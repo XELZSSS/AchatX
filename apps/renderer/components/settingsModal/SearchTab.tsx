@@ -24,8 +24,8 @@ const SearchTab: React.FC<SearchTabProps> = ({
   return (
     <div className="space-y-4">
       <Field label={t('settings.modal.tavily.title')}>
-        <div className="space-y-2">
-          <div className="flex flex-col gap-2">
+        <div className="space-y-3">
+          <div className="space-y-2">
             <label className="text-xs text-[var(--ink-3)]">
               {t('settings.modal.tavily.apiKey')}
             </label>
@@ -62,7 +62,7 @@ const SearchTab: React.FC<SearchTabProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="space-y-2">
             <label className="text-xs text-[var(--ink-3)]">
               {t('settings.modal.tavily.projectId')}
             </label>
@@ -76,8 +76,8 @@ const SearchTab: React.FC<SearchTabProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="space-y-2">
               <label className="text-xs text-[var(--ink-3)]">
                 {t('settings.modal.tavily.searchDepth')}
               </label>
@@ -92,7 +92,7 @@ const SearchTab: React.FC<SearchTabProps> = ({
               />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="space-y-2">
               <label className="text-xs text-[var(--ink-3)]">
                 {t('settings.modal.tavily.maxResults')}
               </label>
@@ -112,7 +112,7 @@ const SearchTab: React.FC<SearchTabProps> = ({
               />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="space-y-2">
               <label className="text-xs text-[var(--ink-3)]">
                 {t('settings.modal.tavily.topic')}
               </label>

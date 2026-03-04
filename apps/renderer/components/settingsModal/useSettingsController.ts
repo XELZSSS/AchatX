@@ -43,6 +43,10 @@ const persistOptionalStorageField = (key: 'mem0ApiKey' | 'mem0UserId', value: st
   writeAppStorage(key, normalized);
 };
 
+const persistProxyStaticHttp2Enabled = (enabled: boolean): void => {
+  writeAppStorage('proxyStaticHttp2', enabled ? '1' : '0');
+};
+
 export const useSettingsController = ({
   isOpen,
   onClose,
@@ -88,6 +92,7 @@ export const useSettingsController = ({
     persistToolCallRounds(state.toolCallMaxRounds);
     persistOptionalStorageField('mem0ApiKey', state.mem0ApiKey);
     persistOptionalStorageField('mem0UserId', state.mem0UserId);
+    persistProxyStaticHttp2Enabled(state.staticProxyHttp2Enabled);
 
     onSave({
       providerId: state.providerId,
@@ -96,6 +101,7 @@ export const useSettingsController = ({
       baseUrl: state.baseUrl,
       customHeaders: state.customHeaders,
       tavily: state.tavily,
+      staticProxyHttp2Enabled: state.staticProxyHttp2Enabled,
     });
     onClose();
   }, [onClose, onSave, state]);
@@ -157,6 +163,13 @@ export const useSettingsController = ({
     [setField]
   );
 
+  const versionActions = useMemo(
+    () => ({
+      onSetStaticProxyHttp2Enabled: (enabled: boolean) => setField('staticProxyHttp2Enabled', enabled),
+    }),
+    [setField]
+  );
+
   return {
     state,
     tabs,
@@ -169,5 +182,6 @@ export const useSettingsController = ({
     providerActions,
     searchActions,
     memoryExportActions,
+    versionActions,
   };
 };

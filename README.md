@@ -89,6 +89,7 @@ npm run dev
 - `MINIMAX_PROXY_HOST`：本地代理监听地址（默认 `127.0.0.1`）
 - `MINIMAX_PROXY_ALLOWED_ORIGINS`：额外允许的 CORS 来源，多个用逗号分隔
 - `ACHATX_PROXY_TOKEN`：代理访问令牌；设置后，请求需带 `x-achatx-proxy-token` 头
+- `ACHATX_PROXY_STATIC_HTTP2`：是否为静态上游代理启用 HTTP/2（默认关闭；支持 `1/true/yes/on`，也可在设置页「版本」标签中切换）
 
 ### 🌐 OpenRouter 专用说明
 

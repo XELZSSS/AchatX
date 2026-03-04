@@ -55,6 +55,7 @@ export const useAppSettings = ({
       if (shouldSyncConversation) {
         syncCurrentConversation();
       }
+      void window.gero?.setProxyStaticHttp2?.(value.staticProxyHttp2Enabled);
     },
     [chatService, currentProviderId, providerSettings, syncCurrentConversation, syncProviderState]
   );

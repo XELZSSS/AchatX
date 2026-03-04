@@ -72,6 +72,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     providerActions,
     searchActions,
     memoryExportActions,
+    versionActions,
   } = useSettingsController({
     isOpen,
     onClose,
@@ -266,8 +267,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 appVersion={appVersion}
                 updateStatusText={getUpdateStatusText()}
                 updaterStatus={updaterStatus.status}
+                staticProxyHttp2Enabled={state.staticProxyHttp2Enabled}
                 onCheckForUpdates={handleCheckForUpdates}
                 onOpenUpdateDownload={handleOpenUpdateDownload}
+                onSetStaticProxyHttp2Enabled={versionActions.onSetStaticProxyHttp2Enabled}
               />
             )}
 

@@ -13,6 +13,7 @@ import {
   parseCustomHeaders,
   parseHeaderValue,
   proxyAuthEnabled,
+  staticProxyHttp2Enabled,
   staticRoutes,
 } from './proxy/config.mjs';
 import { registerCoreMiddlewares } from './proxy/middlewares.mjs';
@@ -34,6 +35,7 @@ await registerStaticProxyRoutes(app, {
   routes: staticRoutes,
   verifyProxyAuth,
   buildForwardHeaders,
+  proxyHttp2: staticProxyHttp2Enabled,
 });
 
 await registerOpenAICompatibleRoute(app, {

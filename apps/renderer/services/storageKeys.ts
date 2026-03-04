@@ -52,6 +52,10 @@ const STORAGE_KEYS = {
     current: 'achatx_mem0_user_id',
     legacy: [],
   },
+  proxyStaticHttp2: {
+    current: 'achatx_proxy_static_http2',
+    legacy: [],
+  },
 } as const satisfies Record<string, KeyDefinition>;
 
 export type AppStorageKey = keyof typeof STORAGE_KEYS;

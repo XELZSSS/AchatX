@@ -16,6 +16,12 @@ declare global {
       getUpdaterStatus: () => Promise<UpdaterStatus>;
       onUpdaterStatus: (callback: (status: UpdaterStatus) => void) => () => void;
       openExternal: (url: string) => Promise<void>;
+      setProxyStaticHttp2: (
+        enabled: boolean
+      ) => Promise<{
+        changed: boolean;
+        enabled: boolean;
+      }>;
       getProxyToken: () => string | undefined;
       getProxyPort: () => string;
       getProxyHost: () => string;

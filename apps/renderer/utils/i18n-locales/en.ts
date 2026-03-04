@@ -80,6 +80,10 @@ export const EN_TRANSLATIONS = {
   'settings.modal.tab.shortcuts': 'Shortcuts',
   'settings.version.title': 'App Version & Updates',
   'settings.version.current': 'Current version',
+  'settings.proxy.title': 'Proxy',
+  'settings.proxy.staticHttp2': 'Enable HTTP/2 for static upstream proxies',
+  'settings.proxy.staticHttp2.help':
+    'Only applies to static proxy routes and takes effect after saving.',
   'settings.modal.shortcuts.title': 'Keyboard Shortcuts',
   'settings.modal.shortcuts.hint': 'Use these shortcuts while chatting.',
   'settings.modal.shortcuts.sendOrGenerate': 'Send message',

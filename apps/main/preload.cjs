@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('gero', {
   quitAndInstallUpdate: () => ipcRenderer.invoke('updater:quit-and-install'),
   getUpdaterStatus: () => ipcRenderer.invoke('updater:get-status'),
   openExternal: (url) => ipcRenderer.invoke('app:open-external', url),
+  setProxyStaticHttp2: (enabled) => ipcRenderer.invoke('proxy:set-static-http2', enabled),
   getProxyToken: () => process.env.ACHATX_PROXY_TOKEN,
   getProxyPort: () => resolveProxyPort(process.env.MINIMAX_PROXY_PORT),
   getProxyHost: () => resolveProxyHost(process.env.MINIMAX_PROXY_HOST),

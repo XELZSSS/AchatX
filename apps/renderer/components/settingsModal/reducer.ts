@@ -14,6 +14,7 @@ export type SettingsModalState = {
   showApiKey: boolean;
   showTavilyKey: boolean;
   showMem0ApiKey: boolean;
+  staticProxyHttp2Enabled: boolean;
   toolCallMaxRounds: string;
   activeTab: ActiveSettingsTab;
 };

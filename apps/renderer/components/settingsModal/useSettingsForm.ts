@@ -38,6 +38,12 @@ const getStoredMem0UserId = (): string => {
   return readAppStorage('mem0UserId') ?? '';
 };
 
+const getStoredProxyStaticHttp2 = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const stored = (readAppStorage('proxyStaticHttp2') ?? '').trim().toLowerCase();
+  return stored === '1' || stored === 'true' || stored === 'yes' || stored === 'on';
+};
+
 type BuildStateInput = {
   providerId: ProviderId;
   modelName: string;
@@ -59,6 +65,7 @@ const buildStateFromInput = (input: BuildStateInput): SettingsModalState => ({
   showApiKey: false,
   showTavilyKey: false,
   showMem0ApiKey: false,
+  staticProxyHttp2Enabled: getStoredProxyStaticHttp2(),
   toolCallMaxRounds: getStoredToolRounds(),
   activeTab: getStoredActiveTab(),
 });

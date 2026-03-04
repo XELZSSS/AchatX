@@ -13,7 +13,7 @@ const { createMainWindow, getMainWindow, registerWindowIpcHandlers, showWindow }
   resolveMainModule('window')
 );
 const { createTray, setTrayLanguage, setTrayLabels } = require(resolveMainModule('tray'));
-const { startProxy, stopProxy } = require(resolveMainModule('proxy'));
+const { startProxy, stopProxy, setStaticProxyHttp2Enabled } = require(resolveMainModule('proxy'));
 const { registerAppIpcHandlers } = require(resolveMainModule('ipc'));
 const { initUpdater, checkForUpdates, quitAndInstall, getUpdaterState } = require(
   resolveMainModule('updater')
@@ -60,6 +60,7 @@ app.whenReady().then(() => {
     checkForUpdates,
     quitAndInstall,
     getUpdaterState,
+    setStaticProxyHttp2Enabled,
   });
   void createMainWindow({ isDev, shouldPreventClose: () => !isQuitting }).catch((error) => {
     console.error('Failed to create main window:', error);

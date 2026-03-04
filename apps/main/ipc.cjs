@@ -13,6 +13,7 @@ const registerAppIpcHandlers = ({
   checkForUpdates,
   quitAndInstall,
   getUpdaterState,
+  setStaticProxyHttp2Enabled,
 }) => {
   registerWindowIpcHandlers();
   registerIpcHandlers({
@@ -35,6 +36,9 @@ const registerAppIpcHandlers = ({
       const target = String(url ?? '').trim();
       if (!target) return;
       await shell.openExternal(target);
+    },
+    'proxy:set-static-http2': (_event, enabled) => {
+      return setStaticProxyHttp2Enabled(enabled);
     },
   });
 };

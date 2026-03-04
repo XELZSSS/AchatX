@@ -9,7 +9,9 @@ export const AUTH_HEADER = 'x-achatx-proxy-token';
 export const PROXY_AUTH_TOKEN = (process.env.ACHATX_PROXY_TOKEN ?? '').trim();
 export const proxyAuthEnabled = PROXY_AUTH_TOKEN.length > 0;
 export const staticProxyHttp2Enabled = ['1', 'true', 'yes', 'on'].includes(
-  String(process.env.ACHATX_PROXY_STATIC_HTTP2 ?? '').trim().toLowerCase()
+  String(process.env.ACHATX_PROXY_STATIC_HTTP2 ?? '')
+    .trim()
+    .toLowerCase()
 );
 
 const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];

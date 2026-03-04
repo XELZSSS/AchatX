@@ -165,7 +165,8 @@ export const useSettingsController = ({
 
   const versionActions = useMemo(
     () => ({
-      onSetStaticProxyHttp2Enabled: (enabled: boolean) => setField('staticProxyHttp2Enabled', enabled),
+      onSetStaticProxyHttp2Enabled: (enabled: boolean) =>
+        setField('staticProxyHttp2Enabled', enabled),
     }),
     [setField]
   );

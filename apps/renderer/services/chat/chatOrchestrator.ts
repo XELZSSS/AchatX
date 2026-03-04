@@ -42,7 +42,10 @@ export class ChatOrchestrator {
   }
 
   setSearchEnabled(enabled: boolean): void {
-    this.runtime.setSearchEnabled(enabled);
+    const changed = this.runtime.setSearchEnabled(enabled);
+    if (!changed) {
+      return;
+    }
     this.applyCurrentProviderSettings();
   }
 
@@ -93,8 +96,11 @@ export class ChatOrchestrator {
     await this.runtime.startChatWithHistory(messages);
   }
 
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
-    yield* this.runtime.sendMessageStream(message);
+  async *sendMessageStream(
+    message: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
+    yield* this.runtime.sendMessageStream(message, signal);
   }
 
   getProviderDefaultModel(providerId: ProviderId): string {

@@ -104,7 +104,10 @@ class GlmProvider extends OpenAIStyleProviderBase implements ProviderChat {
     }
   }
 
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
+  async *sendMessageStream(
+    message: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
     const userMessage: ChatMessage = {
       id: `glm-user-${Date.now()}`,
       role: Role.User,
@@ -125,6 +128,7 @@ class GlmProvider extends OpenAIStyleProviderBase implements ProviderChat {
       for (let round = 0; round < maxToolRounds; round += 1) {
         const preflight = await fetch(this.baseUrl, {
           method: 'POST',
+          signal,
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${this.getApiKeyValue()}`,
@@ -176,6 +180,7 @@ class GlmProvider extends OpenAIStyleProviderBase implements ProviderChat {
 
     const response = await fetch(this.baseUrl, {
       method: 'POST',
+      signal,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.getApiKeyValue()}`,
@@ -202,6 +207,7 @@ class GlmProvider extends OpenAIStyleProviderBase implements ProviderChat {
 
     try {
       while (true) {
+        if (signal?.aborted) break;
         const { value, done } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });

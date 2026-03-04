@@ -35,6 +35,8 @@ export const useStreamingMessages = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const stopRequestedRef = useRef(false);
   const messagesRef = useRef(messages);
+  const activeStreamAbortControllerRef = useRef<AbortController | null>(null);
+  const lastUpdatedMessageIndexRef = useRef<{ id: string; index: number } | null>(null);
   const pendingAutoScrollBehaviorRef = useRef<ScrollBehavior | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
   const forceScrollFrameRef = useRef<number | null>(null);
@@ -168,6 +170,7 @@ export const useStreamingMessages = ({
   );
 
   useEffect(() => {
+    const hasMessages = messages.length > 0;
     const container = messagesContainerRef.current;
     const sentinel = messagesEndRef.current;
     if (!container) return;
@@ -196,7 +199,7 @@ export const useStreamingMessages = ({
     return () => {
       io.disconnect();
     };
-  }, [messages.length, updateNearBottomState]);
+  }, [messages.length > 0, updateNearBottomState]);
 
   useEffect(() => {
     const container = messagesContainerRef.current;
@@ -225,7 +228,14 @@ export const useStreamingMessages = ({
   const updateMessageById = useCallback(
     (messageId: string, updates: Partial<ChatMessage>) => {
       commitMessages((prev) => {
-        const index = prev.findIndex((msg) => msg.id === messageId);
+        const cached = lastUpdatedMessageIndexRef.current;
+        const cachedIndex =
+          cached?.id === messageId && prev[cached.index]?.id === messageId ? cached.index : -1;
+        const index =
+          cachedIndex >= 0 ? cachedIndex : prev.findIndex((msg) => msg.id === messageId);
+        if (cachedIndex < 0 && index >= 0) {
+          lastUpdatedMessageIndexRef.current = { id: messageId, index };
+        }
         if (index === -1) return prev;
         const current = prev[index];
         const nextMessage = { ...current, ...updates };
@@ -266,7 +276,11 @@ export const useStreamingMessages = ({
       const userMessage = buildMessage(Role.User, prompt);
       const modelMessage = buildMessage(Role.Model, '', { id: modelMessageId });
 
-      commitMessages((prev) => [...prev, userMessage, modelMessage]);
+      commitMessages((prev) => {
+        const modelMessageIndex = prev.length + 1;
+        lastUpdatedMessageIndexRef.current = { id: modelMessageId, index: modelMessageIndex };
+        return [...prev, userMessage, modelMessage];
+      });
       if (isNearBottomRef.current) {
         scheduleAutoScroll('auto');
       }
@@ -353,12 +367,17 @@ ${rawMessage}
         window.cancelAnimationFrame(pendingForceRequestFrameRef.current);
         pendingForceRequestFrameRef.current = null;
       }
+      activeStreamAbortControllerRef.current?.abort();
+      activeStreamAbortControllerRef.current = null;
     };
   }, []);
 
   const handleSendMessage = useCallback(
     async (text: string) => {
       stopRequestedRef.current = false;
+      activeStreamAbortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      activeStreamAbortControllerRef.current = abortController;
       const modelMessageId = startPendingModelResponse(text);
       setIsStreaming(true);
       setIsLoading(true);
@@ -391,7 +410,7 @@ ${rawMessage}
           requestAnimationFrame(flushBufferedResponse);
         };
 
-        for await (const chunk of chatService.sendMessageStream(text)) {
+        for await (const chunk of chatService.sendMessageStream(text, abortController.signal)) {
           if (stopRequestedRef.current) {
             break;
           }
@@ -409,12 +428,21 @@ ${rawMessage}
           reasoning: fullResponseReasoning || undefined,
         });
       } catch (error: unknown) {
-        console.error('Chat error:', error);
-
-        const rawMessage = error instanceof Error ? error.message : String(error);
-        const finalMessageText = buildFriendlyErrorMessage(rawMessage);
-        upsertModelErrorMessage(modelMessageId, finalMessageText);
+        const errorName = error instanceof DOMException ? error.name : '';
+        const errorMessage = error instanceof Error ? error.message : String(error ?? '');
+        const isAbortError =
+          stopRequestedRef.current ||
+          errorName === 'AbortError' ||
+          /aborted|abort/i.test(errorMessage);
+        if (!isAbortError) {
+          console.error('Chat error:', error);
+          const finalMessageText = buildFriendlyErrorMessage(errorMessage);
+          upsertModelErrorMessage(modelMessageId, finalMessageText);
+        }
       } finally {
+        if (activeStreamAbortControllerRef.current === abortController) {
+          activeStreamAbortControllerRef.current = null;
+        }
         setIsStreaming(false);
         setIsLoading(false);
         syncHistory();
@@ -432,6 +460,8 @@ ${rawMessage}
 
   const stopStreaming = useCallback(() => {
     stopRequestedRef.current = true;
+    activeStreamAbortControllerRef.current?.abort();
+    activeStreamAbortControllerRef.current = null;
     setIsStreaming(false);
     setIsLoading(false);
   }, []);

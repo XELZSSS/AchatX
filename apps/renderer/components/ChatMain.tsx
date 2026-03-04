@@ -37,6 +37,7 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
   searchAvailable,
   onToggleSearch,
 }) => {
+  const MAX_TRACKED_MESSAGE_IDS = 2000;
   const seenMessageIdsRef = useRef<Set<string>>(new Set());
   const hasShownWelcomeRef = useRef(false);
   const previousMessageIdsRef = useRef<string[]>([]);
@@ -66,6 +67,16 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
 
   useEffect(() => {
     previousMessageIdsRef.current = messages.map((message) => message.id);
+    if (messages.length === 0) {
+      seenMessageIdsRef.current.clear();
+      return;
+    }
+    const retainedIds = new Set(
+      messages.slice(-MAX_TRACKED_MESSAGE_IDS).map((message) => message.id)
+    );
+    seenMessageIdsRef.current = new Set(
+      Array.from(seenMessageIdsRef.current).filter((id) => retainedIds.has(id))
+    );
   }, [messages]);
 
   const shouldAnimateWelcome = !hasMessages && !hasShownWelcomeRef.current;
@@ -107,6 +118,12 @@ const ChatMainComponent: React.FC<ChatMainProps> = ({
                 const shouldAnimateMessage =
                   isNewInAppend && !seenMessageIdsRef.current.has(msg.id);
                 seenMessageIdsRef.current.add(msg.id);
+                if (seenMessageIdsRef.current.size > MAX_TRACKED_MESSAGE_IDS) {
+                  const oldestId = seenMessageIdsRef.current.values().next().value;
+                  if (oldestId) {
+                    seenMessageIdsRef.current.delete(oldestId);
+                  }
+                }
 
                 return (
                   <div key={msg.id}>

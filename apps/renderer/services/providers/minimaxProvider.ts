@@ -59,7 +59,10 @@ class MiniMaxProvider extends OpenAIStandardProviderBase implements ProviderChat
     }
   }
 
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
+  async *sendMessageStream(
+    message: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
     const client = this.getClient();
 
     const userMessage: ChatMessage = {
@@ -83,6 +86,7 @@ class MiniMaxProvider extends OpenAIStandardProviderBase implements ProviderChat
         messages,
         tools,
         tavilyConfig: this.getTavilyConfig(),
+        signal,
         extraBody: { reasoning_split: true },
         buildToolMessages: this.buildToolMessages.bind(this),
         getAssistantMessageExtras: (preflightMessage) =>

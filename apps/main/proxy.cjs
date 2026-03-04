@@ -1,6 +1,11 @@
 /* global process */
 const { app } = require('electron');
-const { getProxyScriptPath, loadProxyConfig, loadProxyState, persistProxyState } = require('./proxy/config.cjs');
+const {
+  getProxyScriptPath,
+  loadProxyConfig,
+  loadProxyState,
+  persistProxyState,
+} = require('./proxy/config.cjs');
 const { startProxyProcess, stopProxyProcess } = require('./proxy/process-manager.cjs');
 
 const { DEFAULT_PROXY_HOST, DEFAULT_PROXY_PORT, resolveProxyHost, resolveProxyPort } =

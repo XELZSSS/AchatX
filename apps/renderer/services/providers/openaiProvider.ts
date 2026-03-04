@@ -112,7 +112,10 @@ class OpenAIProvider extends OpenAIStyleProviderBase implements ProviderChat {
     this.tavilyConfig = normalizeTavilyConfig(config);
   }
 
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
+  async *sendMessageStream(
+    message: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
     const client = this.getClient();
 
     const userMessage: ChatMessage = {
@@ -131,20 +134,33 @@ class OpenAIProvider extends OpenAIStyleProviderBase implements ProviderChat {
     try {
       const tools = this.buildTools();
       if (!tools) {
-        const stream = await client.responses.create({
-          model: this.modelName,
-          instructions: buildSystemInstruction(this.id, this.modelName),
-          input,
-          stream: true,
-          reasoning: enableReasoningSummary ? { summary: 'auto' } : undefined,
-        });
-
-        for await (const event of stream as AsyncIterable<{
+        const createResponse = client.responses.create as unknown as (
+          request: {
+            model: string;
+            instructions: string;
+            input: ReturnType<OpenAIProvider['toInputMessages']>;
+            stream: true;
+            reasoning?: { summary: 'auto' };
+          },
+          options?: { signal?: AbortSignal }
+        ) => Promise<unknown>;
+        const stream = (await createResponse(
+          {
+            model: this.modelName,
+            instructions: buildSystemInstruction(this.id, this.modelName),
+            input,
+            stream: true,
+            reasoning: enableReasoningSummary ? { summary: 'auto' } : undefined,
+          },
+          signal ? { signal } : undefined
+        )) as AsyncIterable<{
           type?: string;
           delta?: string;
           text?: string;
           summary_index?: number;
-        }>) {
+        }>;
+
+        for await (const event of stream) {
           if (event.type === 'response.output_text.delta' && event.delta) {
             fullResponse += event.delta;
             yield event.delta;
@@ -184,6 +200,7 @@ class OpenAIProvider extends OpenAIStyleProviderBase implements ProviderChat {
           messages: baseMessages,
           tools,
           tavilyConfig: this.tavilyConfig,
+          signal,
           buildToolMessages: this.buildToolMessages.bind(this),
           emitPreflightMessageWhenNoToolCalls: true,
         })) {

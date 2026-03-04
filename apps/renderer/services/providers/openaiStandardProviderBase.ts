@@ -93,7 +93,10 @@ export abstract class OpenAIStandardProviderBase extends OpenAIStyleProviderBase
     this.tavilyConfig = normalizeTavilyConfig(config);
   }
 
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
+  async *sendMessageStream(
+    message: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
     const client = this.getClient();
 
     const userMessage: ChatMessage = {
@@ -116,6 +119,7 @@ export abstract class OpenAIStandardProviderBase extends OpenAIStyleProviderBase
         messages,
         tools,
         tavilyConfig: this.tavilyConfig,
+        signal,
         buildToolMessages: this.buildToolMessages.bind(this),
         ...this.getToolLoopOverrides(),
       })) {

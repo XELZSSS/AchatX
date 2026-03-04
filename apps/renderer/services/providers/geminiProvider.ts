@@ -210,8 +210,12 @@ class GeminiProvider implements ProviderChat {
     this.chat = await this.createChat(history);
   }
 
-  async *sendMessageStream(message: string): AsyncGenerator<string, void, unknown> {
+  async *sendMessageStream(
+    message: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
     try {
+      if (signal?.aborted) return;
       let fullResponse = '';
       let fullReasoning = '';
       const userMessage: ChatMessage = {
@@ -225,6 +229,7 @@ class GeminiProvider implements ProviderChat {
         const result = await chat.sendMessageStream({ message });
 
         for await (const chunk of result) {
+          if (signal?.aborted) return;
           const c = chunk as GenerateContentResponse;
           const payload = extractGeminiChunkPayload(c);
           if (payload.reasoning) {
@@ -264,6 +269,7 @@ class GeminiProvider implements ProviderChat {
 
       const functionCalls = response.functionCalls ?? [];
       if (!functionCalls.length) {
+        if (signal?.aborted) return;
         const payload = extractGeminiChunkPayload(response);
         if (payload.reasoning) {
           fullReasoning += payload.reasoning;
@@ -285,6 +291,7 @@ class GeminiProvider implements ProviderChat {
         const chat = await this.ensureChat();
         const result = await chat.sendMessageStream({ message });
         for await (const chunk of result) {
+          if (signal?.aborted) return;
           const c = chunk as GenerateContentResponse;
           const payload = extractGeminiChunkPayload(c);
           if (payload.reasoning) {
@@ -370,6 +377,7 @@ class GeminiProvider implements ProviderChat {
       });
 
       for await (const chunk of stream) {
+        if (signal?.aborted) return;
         const c = chunk as GenerateContentResponse;
         const payload = extractGeminiChunkPayload(c);
         if (payload.reasoning) {

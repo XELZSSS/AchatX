@@ -18,16 +18,14 @@ export const useSearchToggle = ({
   );
 
   useEffect(() => {
-    if (!tavilyAvailable) {
-      if (searchEnabled) {
-        setSearchEnabled(false);
-      }
-      chatService.setSearchEnabled(false);
-      writeAppStorage('searchEnabled', 'false');
+    if (!tavilyAvailable && searchEnabled) {
+      setSearchEnabled(false);
       return;
     }
-    chatService.setSearchEnabled(searchEnabled);
-    writeAppStorage('searchEnabled', String(searchEnabled));
+
+    const nextEnabled = tavilyAvailable ? searchEnabled : false;
+    chatService.setSearchEnabled(nextEnabled);
+    writeAppStorage('searchEnabled', String(nextEnabled));
   }, [chatService, currentProviderId, searchEnabled, tavilyAvailable]);
 
   return { searchEnabled, setSearchEnabled };

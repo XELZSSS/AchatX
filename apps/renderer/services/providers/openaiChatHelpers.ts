@@ -28,6 +28,7 @@ type RunToolLoopOptions = {
   tavilyConfig?: TavilyConfig;
   maxRounds?: number;
   extraBody?: Record<string, unknown>;
+  signal?: AbortSignal;
   buildToolMessages: (toolCalls: ToolCall[], tavilyConfig?: TavilyConfig) => Promise<ToolMessage[]>;
   getAssistantMessageExtras?: (message: PreflightMessage) => Record<string, unknown> | null;
 };
@@ -89,6 +90,22 @@ type RunToolLoopResult = {
   hadToolCalls: boolean;
 };
 
+const createChatCompletion = async (
+  client: OpenAI,
+  params: OpenAIChatCreateNonStreaming | OpenAIChatCreateStreaming,
+  signal?: AbortSignal
+) => {
+  if (signal) {
+    return (
+      client.chat.completions.create as unknown as (
+        request: OpenAIChatCreateNonStreaming | OpenAIChatCreateStreaming,
+        options: { signal: AbortSignal }
+      ) => Promise<unknown>
+    )(params, { signal });
+  }
+  return client.chat.completions.create(params as OpenAIChatCreateNonStreaming);
+};
+
 export const runToolCallLoop = async ({
   client,
   model,
@@ -97,6 +114,7 @@ export const runToolCallLoop = async ({
   tavilyConfig,
   maxRounds = getMaxToolCallRounds(),
   extraBody,
+  signal,
   buildToolMessages,
   getAssistantMessageExtras,
 }: RunToolLoopOptions): Promise<RunToolLoopResult> => {
@@ -109,14 +127,18 @@ export const runToolCallLoop = async ({
   let hadToolCalls = false;
 
   for (let round = 0; round < maxRounds; round += 1) {
-    const initialResponse = await client.chat.completions.create({
-      model,
-      messages: workingMessages,
-      tools,
-      tool_choice: 'auto',
-      stream: false,
-      ...(extraBody ? { extra_body: extraBody } : {}),
-    } as OpenAIChatCreateNonStreaming);
+    const initialResponse = (await createChatCompletion(
+      client,
+      {
+        model,
+        messages: workingMessages,
+        tools,
+        tool_choice: 'auto',
+        stream: false,
+        ...(extraBody ? { extra_body: extraBody } : {}),
+      } as OpenAIChatCreateNonStreaming,
+      signal
+    )) as OpenAI.Chat.Completions.ChatCompletion;
 
     preflightMessage = (initialResponse?.choices?.[0]?.message as PreflightMessage) ?? null;
     const toolCalls = (preflightMessage?.tool_calls as ToolCall[]) ?? [];
@@ -148,6 +170,7 @@ type StreamOptions = {
   model: string;
   messages: OpenAIChatMessages;
   extraBody?: Record<string, unknown>;
+  signal?: AbortSignal;
 };
 
 export async function* streamStandardChatCompletions({
@@ -155,13 +178,18 @@ export async function* streamStandardChatCompletions({
   model,
   messages,
   extraBody,
+  signal,
 }: StreamOptions): AsyncGenerator<{ content?: string; reasoning?: string }, void, unknown> {
-  const stream = (await client.chat.completions.create({
-    model,
-    messages,
-    stream: true,
-    ...(extraBody ? { extra_body: extraBody } : {}),
-  } as OpenAIChatCreateStreaming)) as unknown as AsyncIterable<OpenAIStreamChunk>;
+  const stream = (await createChatCompletion(
+    client,
+    {
+      model,
+      messages,
+      stream: true,
+      ...(extraBody ? { extra_body: extraBody } : {}),
+    } as OpenAIChatCreateStreaming,
+    signal
+  )) as AsyncIterable<OpenAIStreamChunk>;
 
   for await (const chunk of stream) {
     const reasoningDetails =
@@ -200,6 +228,7 @@ type StreamWithToolCallLoopOptions = {
   tools?: OpenAI.Chat.Completions.ChatCompletionTool[];
   tavilyConfig?: TavilyConfig;
   extraBody?: Record<string, unknown>;
+  signal?: AbortSignal;
   buildToolMessages: (toolCalls: ToolCall[], tavilyConfig?: TavilyConfig) => Promise<ToolMessage[]>;
   getAssistantMessageExtras?: (message: PreflightMessage) => Record<string, unknown> | null;
   emitPreflightMessageWhenNoToolCalls?: boolean;
@@ -212,6 +241,7 @@ export async function* streamWithToolCallLoop({
   tools,
   tavilyConfig,
   extraBody,
+  signal,
   buildToolMessages,
   getAssistantMessageExtras,
   emitPreflightMessageWhenNoToolCalls = false,
@@ -232,6 +262,7 @@ export async function* streamWithToolCallLoop({
       tools,
       tavilyConfig,
       extraBody,
+      signal,
       buildToolMessages,
       getAssistantMessageExtras,
     });
@@ -250,6 +281,7 @@ export async function* streamWithToolCallLoop({
     model,
     messages: messagesToStream,
     extraBody,
+    signal,
   })) {
     yield chunk;
   }

@@ -14,7 +14,7 @@ export interface ProviderChat {
   setTavilyConfig?(config: import('../../types').TavilyConfig | undefined): void;
   resetChat(): void;
   startChatWithHistory(messages: ChatMessage[]): Promise<void>;
-  sendMessageStream(message: string): AsyncGenerator<string, void, unknown>;
+  sendMessageStream(message: string, signal?: AbortSignal): AsyncGenerator<string, void, unknown>;
 }
 
 export interface ProviderDefinition {

@@ -1,0 +1,15 @@
+export const PROVIDER_IDS = [
+  'gemini',
+  'gemini-cli-auth',
+  'openai',
+  'openai-codex-auth',
+  'openai-compatible',
+  'nvidia',
+  'xai',
+  'deepseek',
+  'glm',
+  'minimax',
+  'moonshot',
+  'xiaomi-mimo',
+  'longcat',
+] as const;

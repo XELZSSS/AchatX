@@ -1,0 +1,42 @@
+export type GeminiCliAuthStatus = {
+  authenticated: boolean;
+  email?: string;
+  expiresAt?: number;
+  projectId?: string;
+};
+
+export type GeminiCliAuthSession = GeminiCliAuthStatus & {
+  accessToken: string;
+};
+
+const UNAUTHENTICATED_STATUS: GeminiCliAuthStatus = {
+  authenticated: false,
+};
+
+export const getGeminiCliAuthStatus = async (): Promise<GeminiCliAuthStatus> => {
+  try {
+    return (await window.axchat?.getGeminiCliAuthStatus?.()) ?? UNAUTHENTICATED_STATUS;
+  } catch (error) {
+    console.error('Failed to read Gemini CLI auth status:', error);
+    return UNAUTHENTICATED_STATUS;
+  }
+};
+
+export const getGeminiCliAuthSession = async (): Promise<GeminiCliAuthSession | null> => {
+  try {
+    return (await window.axchat?.getGeminiCliAuthSession?.()) ?? null;
+  } catch (error) {
+    console.error('Failed to read Gemini CLI auth session:', error);
+    return null;
+  }
+};
+
+export const loginGeminiCliAuth = async (): Promise<GeminiCliAuthStatus> => {
+  const status = await window.axchat?.loginGeminiCliAuth?.();
+  return status ?? UNAUTHENTICATED_STATUS;
+};
+
+export const logoutGeminiCliAuth = async (): Promise<GeminiCliAuthStatus> => {
+  const status = await window.axchat?.logoutGeminiCliAuth?.();
+  return status ?? UNAUTHENTICATED_STATUS;
+};

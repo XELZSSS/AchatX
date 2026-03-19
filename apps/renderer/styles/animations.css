@@ -1,0 +1,106 @@
+@keyframes loading-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes subtle-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: none;
+  }
+  50% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-loading-scan {
+  animation: loading-scan 1.6s linear infinite;
+}
+
+.animate-bounce {
+  animation: subtle-pulse 1.1s var(--motion-ease-standard) infinite;
+}
+
+.animate-pulse {
+  animation: subtle-pulse 1.2s var(--motion-ease-standard) infinite;
+}
+
+@keyframes soft-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes panel-bloom {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes content-soft-swap {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fx-soft-rise {
+  animation: soft-rise var(--motion-base) var(--motion-ease-standard) both;
+}
+
+.fx-soft-fade {
+  animation: soft-fade var(--motion-fast) var(--motion-ease-standard) both;
+}
+
+.fx-panel-bloom {
+  animation: panel-bloom var(--motion-slow) var(--motion-ease-emphasized) both;
+  transform-origin: bottom right;
+}
+
+.fx-content-soft-swap {
+  animation: content-soft-swap var(--motion-base) var(--motion-ease-standard) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

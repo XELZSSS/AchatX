@@ -13,7 +13,7 @@ export {};
 
 declare global {
   interface Window {
-    axchat?: {
+    orlinx?: {
       readStoredAppValue: (key: string) => string | null;
       writeStoredAppValue: (key: string, value: string) => void;
       removeStoredAppValue: (key: string) => void;
@@ -38,7 +38,7 @@ declare global {
       loginGeminiCliAuth: () => Promise<GeminiCliAuthStatus>;
       logoutGeminiCliAuth: () => Promise<GeminiCliAuthStatus>;
       openExternal: (url: string) => Promise<void>;
-      openAxchatLocalConfig: () => Promise<void>;
+      openOrlinxLocalConfig: () => Promise<void>;
       setProxyAllowHttpTargets: (enabled: boolean) => Promise<{
         changed: boolean;
         enabled: boolean;
@@ -78,3 +78,4 @@ declare global {
     };
   }
 }
+

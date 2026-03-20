@@ -102,7 +102,7 @@ const createTray = (options) => {
   onQuit = options?.onQuit ?? null;
   const icon = getTrayIcon();
   tray = new Tray(icon);
-  tray.setToolTip('AXCHAT');
+  tray.setToolTip('Orlinx');
   updateTrayMenu();
   tray.on('click', toggleMainWindowVisibility);
 };
@@ -135,3 +135,4 @@ module.exports = {
   setTrayLabels,
   updateTrayMenu,
 };
+

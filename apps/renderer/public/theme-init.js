@@ -2,7 +2,7 @@
 (function () {
   var DEFAULT_THEME = 'dark';
   var DEFAULT_THEME_PREFERENCE = 'system';
-  var APP_SETTINGS_KEY = 'axchat_app_settings';
+  var APP_SETTINGS_KEY = 'orlinx_app_settings';
   var DARK_BG = '#0a0a0a';
   var LIGHT_BG = '#ffffff';
   var isTheme = function (theme) {
@@ -40,10 +40,10 @@
 
   try {
     var readNativeValue =
-      window.axchat && typeof window.axchat.readStoredAppValue === 'function'
+      window.orlinx && typeof window.orlinx.readStoredAppValue === 'function'
         ? function (key) {
             try {
-              return window.axchat.readStoredAppValue(key);
+              return window.orlinx.readStoredAppValue(key);
             } catch {
               return null;
             }
@@ -53,7 +53,7 @@
           };
     var storage = window.localStorage;
     var rawSettings =
-      window.axchat && typeof window.axchat.readStoredAppValue === 'function'
+      window.orlinx && typeof window.orlinx.readStoredAppValue === 'function'
         ? readNativeValue('appSettings')
         : storage.getItem(APP_SETTINGS_KEY);
     var theme = parseThemePreferenceFromSettings(rawSettings);
@@ -63,3 +63,4 @@
     applyTheme(DEFAULT_THEME);
   }
 })();
+

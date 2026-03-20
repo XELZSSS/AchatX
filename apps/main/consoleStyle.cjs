@@ -1,5 +1,5 @@
 /* global console, process, window */
-const INSTALL_MARK = Symbol.for('axchat.console.style.installed');
+const INSTALL_MARK = Symbol.for('orlinx.console.style.installed');
 const DEFAULT_SCOPE = 'app';
 
 const RESET = '\x1b[0m';
@@ -38,21 +38,21 @@ const normalizeScope = (scope) => {
 const buildPlainPrefix = (level, scope) => {
   const normalizedScope = normalizeScope(scope);
   const theme = LEVEL_THEME[level] ?? LEVEL_THEME.log;
-  return `[AXCHAT/${normalizedScope}/${theme.label}]`;
+  return `[Orlinx/${normalizedScope}/${theme.label}]`;
 };
 
 const buildAnsiPrefix = (level, scope) => {
   const normalizedScope = normalizeScope(scope);
   const theme = LEVEL_THEME[level] ?? LEVEL_THEME.log;
   const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
-  return `${DIM}${time}${RESET} ${theme.accent}${theme.symbol}${RESET} ${BADGE_BG}${BADGE_FG} AXCHAT ${RESET} ${DIM}${normalizedScope}${RESET}`;
+  return `${DIM}${time}${RESET} ${theme.accent}${theme.symbol}${RESET} ${BADGE_BG}${BADGE_FG} Orlinx ${RESET} ${DIM}${normalizedScope}${RESET}`;
 };
 
 const buildBrowserPrefix = (level, scope) => {
   const normalizedScope = normalizeScope(scope);
   const theme = LEVEL_THEME[level] ?? LEVEL_THEME.log;
   return [
-    `%c AXCHAT %c ${normalizedScope} %c ${theme.label} %c`,
+    `%c Orlinx %c ${normalizedScope} %c ${theme.label} %c`,
     BROWSER_BADGE_STYLE,
     BROWSER_SCOPE_STYLE,
     `color:${theme.browserColor};font-weight:700;`,
@@ -129,3 +129,4 @@ const installConsoleStyle = (scope = DEFAULT_SCOPE) => {
 module.exports = {
   installConsoleStyle,
 };
+

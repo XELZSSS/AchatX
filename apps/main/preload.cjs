@@ -1,7 +1,7 @@
 /* global console, process, Buffer */
 const { contextBridge, ipcRenderer } = require('electron');
 
-const PRELOAD_CONSOLE_INSTALL_MARK = '__axchat_preload_console_style_installed__';
+const PRELOAD_CONSOLE_INSTALL_MARK = '__orlinx_preload_console_style_installed__';
 const PRELOAD_BADGE_STYLE =
   'background:#1f2937;color:#f8fafc;padding:2px 8px;border-radius:999px;font-weight:700;';
 const PRELOAD_SCOPE_STYLE = 'color:#94a3b8;font-weight:600;';
@@ -31,7 +31,7 @@ const installPreloadConsoleStyle = () => {
     const theme = PRELOAD_LEVEL_THEME[method] ?? PRELOAD_LEVEL_THEME.log;
 
     target[method] = (...args) => {
-      const template = `%c AXCHAT %c preload %c ${theme.label} %c`;
+      const template = `%c Orlinx %c preload %c ${theme.label} %c`;
 
       if (args.length === 0) {
         original(
@@ -70,7 +70,7 @@ const installPreloadConsoleStyle = () => {
 
 installPreloadConsoleStyle();
 
-const APP_STORAGE_BOOTSTRAP_PREFIX = '--axchat-app-storage-bootstrap=';
+const APP_STORAGE_BOOTSTRAP_PREFIX = '--orlinx-app-storage-bootstrap=';
 
 const toPrimitiveString = (value) => {
   if (typeof value === 'string') return value;
@@ -190,7 +190,7 @@ const subscribe =
     };
   };
 
-contextBridge.exposeInMainWorld('axchat', {
+contextBridge.exposeInMainWorld('orlinx', {
   readStoredAppValue,
   writeStoredAppValue,
   removeStoredAppValue,
@@ -214,7 +214,7 @@ contextBridge.exposeInMainWorld('axchat', {
   loginGeminiCliAuth: invoke('auth:gemini-cli:login'),
   logoutGeminiCliAuth: invoke('auth:gemini-cli:logout'),
   openExternal: invoke('app:open-external'),
-  openAxchatLocalConfig: invoke('app:open-local-config'),
+  openOrlinxLocalConfig: invoke('app:open-local-config'),
   setProxyAllowHttpTargets: invoke('proxy:set-allow-http-targets'),
   listStoredSessions: invoke('storage:sessions:list'),
   getStoredSession: invoke('storage:sessions:get'),
@@ -250,3 +250,4 @@ contextBridge.exposeInMainWorld('axchat', {
   importSettingsTransfer: invoke('settings:transfer:import'),
   notifyRendererReady: () => ipcRenderer.send('app:renderer-ready'),
 });
+

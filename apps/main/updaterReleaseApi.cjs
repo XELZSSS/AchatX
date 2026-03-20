@@ -1,7 +1,7 @@
 const https = require('https');
 
-const RELEASE_API_URL = 'https://api.github.com/repos/XELZSSS/AXCHAT/releases/latest';
-const RELEASES_API_URL = 'https://api.github.com/repos/XELZSSS/AXCHAT/releases?per_page=10';
+const RELEASE_API_URL = 'https://api.github.com/repos/XELZSSS/Orlinx/releases/latest';
+const RELEASES_API_URL = 'https://api.github.com/repos/XELZSSS/Orlinx/releases?per_page=10';
 const UPDATE_REQUEST_TIMEOUT_MS = 15000;
 
 const requestJson = (url) =>
@@ -12,7 +12,7 @@ const requestJson = (url) =>
         method: 'GET',
         headers: {
           Accept: 'application/vnd.github+json',
-          'User-Agent': 'AXCHAT-Updater',
+          'User-Agent': 'Orlinx-Updater',
           'X-GitHub-Api-Version': '2022-11-28',
         },
       },
@@ -98,3 +98,4 @@ module.exports = {
   resolveLatestRelease,
   resolveWindowsInstallerUrl,
 };
+

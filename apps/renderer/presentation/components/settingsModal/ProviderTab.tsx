@@ -105,15 +105,15 @@ const ProviderTab = ({
     [onGoogleCloudProjectChange]
   );
   const canOpenLocalConfig =
-    typeof window !== 'undefined' && typeof window.axchat?.openAxchatLocalConfig === 'function';
+    typeof window !== 'undefined' && typeof window.orlinx?.openOrlinxLocalConfig === 'function';
   const canOpenCredentialPage =
-    typeof window !== 'undefined' && typeof window.axchat?.openExternal === 'function';
+    typeof window !== 'undefined' && typeof window.orlinx?.openExternal === 'function';
   const handleOpenLocalConfig = useCallback(
-    () => void window.axchat?.openAxchatLocalConfig?.(),
+    () => void window.orlinx?.openOrlinxLocalConfig?.(),
     []
   );
   const handleOpenCredentialPage = useCallback(
-    () => void window.axchat?.openExternal?.('https://console.cloud.google.com/auth/clients/'),
+    () => void window.orlinx?.openExternal?.('https://console.cloud.google.com/auth/clients/'),
     []
   );
   const baseUrlIssues = validationIssuesByField['provider.baseUrl'];
@@ -315,3 +315,4 @@ const ProviderTab = ({
 };
 
 export default ProviderTab;
+

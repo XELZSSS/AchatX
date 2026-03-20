@@ -9,7 +9,7 @@ import {
 const memoryStore = new Map<AppStorageKey, string>();
 const payloadMemoryStore = new Map<string, string>();
 let sessionsCache: ChatSession[] | null = null;
-const SESSION_PAYLOAD_KEY_PREFIX = 'axchat_session_payload_v1_';
+const SESSION_PAYLOAD_KEY_PREFIX = 'orlinx_session_payload_v1_';
 
 export const storageGetItem = (key: AppStorageKey): string | null => {
   const storageValue = readAppStorage(key);
@@ -131,3 +131,4 @@ export const getCachedSessionsValue = (): ChatSession[] | null => sessionsCache;
 export const setCachedSessionsValue = (sessions: ChatSession[] | null): void => {
   sessionsCache = sessions;
 };
+

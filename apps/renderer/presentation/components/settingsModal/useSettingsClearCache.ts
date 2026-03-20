@@ -30,7 +30,7 @@ export const useSettingsClearCache = ({
   const handleClearCache = useCallback(async () => {
     beginLocalDataReset();
     try {
-      const resetLocalData = window.axchat?.resetLocalData ?? window.axchat?.clearCache;
+      const resetLocalData = window.orlinx?.resetLocalData ?? window.orlinx?.clearCache;
       const result = await resetLocalData?.();
       if (result?.ok) {
         const nextAction =
@@ -71,3 +71,4 @@ export const useSettingsClearCache = ({
     handleConfirmClearCache,
   };
 };
+

@@ -26,17 +26,17 @@ const scheduleAppRestartAction = (action) => {
   }, 600);
 };
 
-const resolveAxchatLocalConfigPath = () => {
+const resolveOrlinxLocalConfigPath = () => {
   if (app.isPackaged) {
-    return path.join(app.getPath('userData'), 'axchat.local.json');
+    return path.join(app.getPath('userData'), 'orlinx.local.json');
   }
 
-  return path.resolve(__dirname, '..', '..', '..', 'axchat.local.json');
+  return path.resolve(__dirname, '..', '..', '..', 'orlinx.local.json');
 };
 
 const getConfigTransferDefaultPath = () => {
   const date = new Date().toISOString().slice(0, 10);
-  return path.join(app.getPath('documents'), `axchat-settings-${date}.json`);
+  return path.join(app.getPath('documents'), `orlinx-settings-${date}.json`);
 };
 
 const runLocalDataReset = async ({
@@ -134,7 +134,7 @@ const buildSystemHandlers = ({
     await shell.openExternal(parsed.toString());
   },
   'app:open-local-config': async () => {
-    const configPath = resolveAxchatLocalConfigPath();
+    const configPath = resolveOrlinxLocalConfigPath();
     if (!fs.existsSync(configPath)) {
       fs.mkdirSync(path.dirname(configPath), { recursive: true });
       fs.writeFileSync(configPath, '{\n}\n', 'utf8');
@@ -187,7 +187,7 @@ const buildSystemHandlers = ({
     const contents = typeof record.contents === 'string' ? record.contents : '';
     const result = await dialog.showSaveDialog({
       defaultPath,
-      filters: [{ name: 'AXCHAT Settings', extensions: ['json'] }],
+      filters: [{ name: 'Orlinx Settings', extensions: ['json'] }],
     });
 
     if (result.canceled || !result.filePath) {
@@ -205,7 +205,7 @@ const buildSystemHandlers = ({
     const result = await dialog.showOpenDialog({
       defaultPath: app.getPath('documents'),
       properties: ['openFile'],
-      filters: [{ name: 'AXCHAT Settings', extensions: ['json'] }],
+      filters: [{ name: 'Orlinx Settings', extensions: ['json'] }],
     });
 
     if (result.canceled || !result.filePaths[0]) {
@@ -225,3 +225,4 @@ const buildSystemHandlers = ({
 module.exports = {
   buildSystemHandlers,
 };
+

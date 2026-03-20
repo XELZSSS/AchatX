@@ -42,7 +42,7 @@ export const useSettingsTransfer = ({
     setConfigTransferBusy(true);
     setConfigTransferNotice(null);
     try {
-      if (!window.axchat?.exportSettingsTransfer) {
+      if (!window.orlinx?.exportSettingsTransfer) {
         throw new Error(t('settings.transfer.error.generic'));
       }
       const contents = createSettingsExportContent({
@@ -50,7 +50,7 @@ export const useSettingsTransfer = ({
         providerSettings,
         includeSecrets: includeSecretsInExport,
       });
-      const result = await window.axchat.exportSettingsTransfer({ contents });
+      const result = await window.orlinx.exportSettingsTransfer({ contents });
       if (!result?.canceled) {
         setConfigTransferNotice({ status: 'success', message: t('settings.transfer.export.success') });
       }
@@ -65,10 +65,10 @@ export const useSettingsTransfer = ({
     setConfigTransferBusy(true);
     setConfigTransferNotice(null);
     try {
-      if (!window.axchat?.importSettingsTransfer) {
+      if (!window.orlinx?.importSettingsTransfer) {
         throw new Error(t('settings.transfer.error.generic'));
       }
-      const result = await window.axchat.importSettingsTransfer();
+      const result = await window.orlinx.importSettingsTransfer();
       if (!result || result.canceled) {
         return;
       }
@@ -133,3 +133,4 @@ export const useSettingsTransfer = ({
     handleOpenImportSettings,
   };
 };
+

@@ -36,7 +36,7 @@ const WinIcon = ({ type }: { type: WindowControlType }) => {
   }
 };
 
-const isElectron = typeof window !== 'undefined' && !!window.axchat;
+const isElectron = typeof window !== 'undefined' && !!window.orlinx;
 const BUTTON_CLASS =
   'titlebar-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action-interactive)]';
 
@@ -53,9 +53,9 @@ const TitleBar = ({ language }: { language: Language }) => {
   const [maximized, setMaximized] = useState(false);
   const maximizeLabel = maximized ? t('titlebar.restore') : t('titlebar.maximize');
 
-  const handleMinimize = useCallback(() => window.axchat?.minimize(), []);
-  const handleToggleMaximize = useCallback(() => window.axchat?.toggleMaximize(), []);
-  const handleClose = useCallback(() => window.axchat?.close(), []);
+  const handleMinimize = useCallback(() => window.orlinx?.minimize(), []);
+  const handleToggleMaximize = useCallback(() => window.orlinx?.toggleMaximize(), []);
+  const handleClose = useCallback(() => window.orlinx?.close(), []);
   const controls: TitleBarControl[] = [
     {
       key: 'min',
@@ -78,10 +78,10 @@ const TitleBar = ({ language }: { language: Language }) => {
   ] as const;
 
   useEffect(() => {
-    if (!isElectron || !window.axchat) return;
+    if (!isElectron || !window.orlinx) return;
     let cleanup: (() => void) | undefined;
-    void window.axchat.isMaximized().then((value) => setMaximized(value));
-    cleanup = window.axchat.onMaximizeChanged((value) => setMaximized(value));
+    void window.orlinx.isMaximized().then((value) => setMaximized(value));
+    cleanup = window.orlinx.onMaximizeChanged((value) => setMaximized(value));
     return () => cleanup?.();
   }, []);
 
@@ -109,3 +109,4 @@ const TitleBar = ({ language }: { language: Language }) => {
 };
 
 export default TitleBar;
+

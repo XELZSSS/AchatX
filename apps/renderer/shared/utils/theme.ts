@@ -73,7 +73,7 @@ export const getAccentPreference = (): AccentPreference => currentAccentPreferen
 
 const syncThemeToElectron = (): void => {
   if (typeof window === 'undefined') return;
-  const syncTask = window.axchat?.setTheme?.(currentThemePreference);
+  const syncTask = window.orlinx?.setTheme?.(currentThemePreference);
   if (syncTask && typeof syncTask.catch === 'function') {
     void syncTask.catch(() => {
       // Ignore Electron IPC errors so web previews continue to work.
@@ -118,3 +118,4 @@ export const refreshSystemTheme = (): Theme | null => {
   applyThemeToDocument();
   return currentTheme;
 };
+

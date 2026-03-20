@@ -1,21 +1,21 @@
 type KeyDefinition = string;
 
 type NativeAppStorage = Pick<
-  NonNullable<Window['axchat']>,
+  NonNullable<Window['orlinx']>,
   'readStoredAppValue' | 'writeStoredAppValue' | 'removeStoredAppValue'
 >;
 
 const STORAGE_KEYS = {
-  sessions: 'axchat_session_index_v1',
-  activeSessionId: 'axchat_active_session_id_v1',
-  providerSettings: 'axchat_provider_settings',
-  appSettings: 'axchat_app_settings',
-  searchEnabled: 'axchat_search_enabled',
-  reasoningEnabled: 'axchat_reasoning_enabled',
-  inputDraft: 'axchat_input_draft',
-  recentEmojis: 'axchat_recent_emojis',
-  appVersion: 'axchat_app_version',
-  updaterStatus: 'axchat_updater_status',
+  sessions: 'orlinx_session_index_v1',
+  activeSessionId: 'orlinx_active_session_id_v1',
+  providerSettings: 'orlinx_provider_settings',
+  appSettings: 'orlinx_app_settings',
+  searchEnabled: 'orlinx_search_enabled',
+  reasoningEnabled: 'orlinx_reasoning_enabled',
+  inputDraft: 'orlinx_input_draft',
+  recentEmojis: 'orlinx_recent_emojis',
+  appVersion: 'orlinx_app_version',
+  updaterStatus: 'orlinx_updater_status',
 } as const satisfies Record<string, KeyDefinition>;
 
 export type AppStorageKey = keyof typeof STORAGE_KEYS;
@@ -32,14 +32,14 @@ const getLocalStorage = (): Storage | null => {
 const getNativeAppStorage = (): NativeAppStorage | null => {
   if (
     typeof window === 'undefined' ||
-    !window.axchat?.readStoredAppValue ||
-    !window.axchat?.writeStoredAppValue ||
-    !window.axchat?.removeStoredAppValue
+    !window.orlinx?.readStoredAppValue ||
+    !window.orlinx?.writeStoredAppValue ||
+    !window.orlinx?.removeStoredAppValue
   ) {
     return null;
   }
 
-  return window.axchat;
+  return window.orlinx;
 };
 
 const safeGetItem = (storage: Storage, key: string): string | null => {
@@ -115,3 +115,4 @@ export const removeAppStorage = (key: AppStorageKey): void => {
     safeRemoveItem(storage, STORAGE_KEYS[key]);
   }
 };
+

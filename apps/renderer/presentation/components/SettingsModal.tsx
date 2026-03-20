@@ -135,8 +135,8 @@ const SettingsModal = ({
   const handleCheckForUpdates = useCallback(() => checkForUpdates(), []);
   const handleOpenUpdateDownload = useCallback(() => openUpdateDownload(), []);
   const handleOpenAuthorPage = useCallback(async () => {
-    if (typeof window !== 'undefined' && window.axchat?.openExternal) {
-      await window.axchat.openExternal(AUTHOR_URL);
+    if (typeof window !== 'undefined' && window.orlinx?.openExternal) {
+      await window.orlinx.openExternal(AUTHOR_URL);
       return;
     }
     window.open(AUTHOR_URL, '_blank', 'noopener,noreferrer');
@@ -288,3 +288,4 @@ const SettingsModal = ({
 };
 
 export default SettingsModal;
+

@@ -158,7 +158,7 @@ export const ZH_CN_SETTINGS_TRANSLATIONS = {
   'settings.transfer.import.mergeSuccess': '导入并合并',
   'settings.transfer.import.replaceSuccess': '导入并替换',
   'settings.transfer.import.error.invalidJson': '文件不是有效的 JSON',
-  'settings.transfer.import.error.invalidSchema': '文件不是受支持的 AXCHAT 导出文件',
+  'settings.transfer.import.error.invalidSchema': '文件不是受支持的 Orlinx 导出文件',
   'settings.transfer.import.error.unsupportedVersion': '当前版本不支持这个导出文件',
   'settings.transfer.preview.exportedAt': '导出时间',
   'settings.transfer.preview.providerCount': '供应商数量',
@@ -206,9 +206,9 @@ export const ZH_CN_SETTINGS_TRANSLATIONS = {
   'settings.clearCache.button': '清理',
   'settings.clearCache.title': '应用数据',
   'settings.clearCache.cardTitle': '清理应用全部数据',
-  'settings.clearCache.description': '清理应用全部数据，axchat.local.json 不会被删除',
-  'settings.clearCache.confirm': '确定要清理应用全部数据吗？AXCHAT 将自动重启。',
-  'settings.clearCache.confirmPortable': '确定要清理应用全部数据吗？AXCHAT 将退出应用。',
+  'settings.clearCache.description': '清理应用全部数据，orlinx.local.json 不会被删除',
+  'settings.clearCache.confirm': '确定要清理应用全部数据吗？Orlinx 将自动重启。',
+  'settings.clearCache.confirmPortable': '确定要清理应用全部数据吗？Orlinx 将退出应用。',
   'settings.clearCache.confirmAction': '清理',
   'settings.clearCache.success': '应用数据已清除，正在重启...',
   'settings.clearCache.successPortable': '应用数据已清除，正在退出应用...',
@@ -252,3 +252,4 @@ export const ZH_CN_SETTINGS_TRANSLATIONS = {
   'settings.titlePrompt.user':
     '请为以下聊天首条消息生成一个非常简短且精炼的标题（最多 4-5 个词）：“{message}”。',
 } as const;
+

@@ -23,7 +23,7 @@ const applyCsp = () => {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    `connect-src 'self' axchat: ${proxyOrigin} ws://localhost:3000 https: http:`,
+    `connect-src 'self' orlinx: ${proxyOrigin} ws://localhost:3000 https: http:`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -127,7 +127,7 @@ const RendererReadyBridge = () => {
       }
 
       hasNotifiedRendererReady = true;
-      window.axchat?.notifyRendererReady?.();
+      window.orlinx?.notifyRendererReady?.();
     };
 
     void notifyWhenReady();
@@ -151,3 +151,4 @@ root.render(
     <RendererReadyBridge />
   </StrictMode>
 );
+

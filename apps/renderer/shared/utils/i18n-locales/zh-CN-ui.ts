@@ -1,6 +1,6 @@
 export const ZH_CN_UI_TRANSLATIONS = {
-  'app.title': 'AXCHAT',
-  'header.mobileTitle': 'AXCHAT',
+  'app.title': 'Orlinx',
+  'header.mobileTitle': 'Orlinx',
   'sidebar.newChat': '新对话',
   'sidebar.searchPlaceholder': '搜索',
   'sidebar.history': '历史记录',
@@ -32,7 +32,7 @@ export const ZH_CN_UI_TRANSLATIONS = {
   'titlebar.restore': '还原',
   'titlebar.close': '关闭',
   'role.user': '用户',
-  'role.model': 'AXCHAT',
+  'role.model': 'Orlinx',
   'copy.copy': '复制',
   'copy.copied': '已复制',
   'code.copyCode': '复制代码',
@@ -54,3 +54,4 @@ export const ZH_CN_UI_TRANSLATIONS = {
   'language.en': 'EN',
   'language.zhCN': '中文',
 } as const;
+

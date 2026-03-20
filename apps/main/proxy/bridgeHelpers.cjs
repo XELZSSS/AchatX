@@ -154,7 +154,7 @@ const createResolveForwardTarget = ({
   const buildOpenAICompatibleTarget = ({ pathname, search, requestHeaders }) => {
     const matchedPrefix = openAICompatiblePrefixes.find((prefix) => pathname.startsWith(prefix));
     if (!matchedPrefix) {
-      return { error: createJsonResponse(404, { error: 'Unknown AXCHAT protocol route.' }) };
+      return { error: createJsonResponse(404, { error: 'Unknown Orlinx protocol route.' }) };
     }
 
     const targetBaseUrl = normalizeTargetUrl(requestHeaders.get(headers.openaiCompatibleBaseUrl));
@@ -242,7 +242,7 @@ const createResolveForwardTarget = ({
     const { pathname, search } = url;
 
     if (!pathname.startsWith(proxyPathPrefix)) {
-      return { error: createJsonResponse(404, { error: 'Unknown AXCHAT protocol route.' }) };
+      return { error: createJsonResponse(404, { error: 'Unknown Orlinx protocol route.' }) };
     }
 
     const staticRoute = staticRouteTable.find(
@@ -279,7 +279,7 @@ const createResolveForwardTarget = ({
       });
     }
 
-    return { error: createJsonResponse(404, { error: 'Unknown AXCHAT protocol route.' }) };
+    return { error: createJsonResponse(404, { error: 'Unknown Orlinx protocol route.' }) };
   };
 
   return {
@@ -294,3 +294,4 @@ module.exports = {
   createResolveForwardTarget,
   readRequestBodyForForwarding,
 };
+

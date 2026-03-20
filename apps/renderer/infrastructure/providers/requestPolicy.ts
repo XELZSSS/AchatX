@@ -20,7 +20,7 @@ export type RequestPolicy = {
 
 const MAX_ADAPTIVE_TOOL_PARALLELISM = 3;
 const LONG_QUERY_THRESHOLD = 80;
-const REQUEST_POLICY_DEBUG_STORAGE_KEY = 'axchat_debug_request_policy';
+const REQUEST_POLICY_DEBUG_STORAGE_KEY = 'orlinx_debug_request_policy';
 const SEARCH_INTENT_PATTERN =
   /最新|搜索|查一下|查证|对比|新闻|资料|来源|联网|web|search|latest|news|compare|source|research/i;
 
@@ -141,3 +141,4 @@ export const debugLogRequestPolicy = (providerId: string, policy: RequestPolicy)
     reason: policy.reason,
   });
 };
+

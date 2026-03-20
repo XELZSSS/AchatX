@@ -66,8 +66,8 @@ export const useAppSettings = ({
   hasMessages,
 }: UseAppSettingsOptions) => {
   const syncTrayLabels = useCallback((language: Language) => {
-    void window.axchat?.setTrayLanguage?.(language);
-    void window.axchat?.setTrayLabels?.({
+    void window.orlinx?.setTrayLanguage?.(language);
+    void window.orlinx?.setTrayLabels?.({
       open: t('tray.open'),
       hide: t('tray.hide'),
       toggleDevTools: t('tray.toggleDevTools'),
@@ -122,7 +122,7 @@ export const useAppSettings = ({
 
       syncDefaultProviderState();
       syncConversationState();
-      void window.axchat?.setProxyAllowHttpTargets?.(value.app.allowHttpTargets);
+      void window.orlinx?.setProxyAllowHttpTargets?.(value.app.allowHttpTargets);
     },
     [
       chatService,
@@ -161,7 +161,7 @@ export const useAppSettings = ({
       setAccentPreferenceState(resolvedAccent);
       syncTrayLabels(resolvedLanguage);
       persistAppSettings(appSettings);
-      void window.axchat?.setProxyAllowHttpTargets?.(appSettings.allowHttpTargets);
+      void window.orlinx?.setProxyAllowHttpTargets?.(appSettings.allowHttpTargets);
 
       chatService.replaceAllProviderSettings(importedProviderSettings);
 
@@ -194,3 +194,4 @@ export const useAppSettings = ({
     handleImportSettings,
   };
 };
+

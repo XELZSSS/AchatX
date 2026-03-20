@@ -7,11 +7,11 @@ const { createResolveForwardTarget } = require('./proxy/bridgeHelpers.cjs');
 const { PROXY_PATH_PREFIX, STATIC_PROXY_ROUTES, OPENAI_COMPATIBLE_ROUTE_PATTERNS } =
   loadProxyConfig();
 
-const AXCHAT_PROTOCOL_SCHEME = 'axchat';
-const AXCHAT_PROTOCOL_HOST = 'local';
-const AXCHAT_PROTOCOL_ORIGIN = `${AXCHAT_PROTOCOL_SCHEME}://${AXCHAT_PROTOCOL_HOST}`;
-const AUTH_HEADER = 'x-axchat-proxy-token';
-const OPENAI_COMPATIBLE_PATH_HEADER = 'x-axchat-openai-compatible-path-mode';
+const Orlinx_PROTOCOL_SCHEME = 'orlinx';
+const Orlinx_PROTOCOL_HOST = 'local';
+const Orlinx_PROTOCOL_ORIGIN = `${Orlinx_PROTOCOL_SCHEME}://${Orlinx_PROTOCOL_HOST}`;
+const AUTH_HEADER = 'x-orlinx-proxy-token';
+const OPENAI_COMPATIBLE_PATH_HEADER = 'x-orlinx-openai-compatible-path-mode';
 const OPENAI_COMPATIBLE_BASE_URL_HEADER = 'x-openai-compatible-base-url';
 const OPENAI_COMPATIBLE_HEADERS_HEADER = 'x-openai-compatible-headers';
 const SEARXNG_BASE_URL_HEADER = 'x-searxng-base-url';
@@ -44,7 +44,7 @@ let protocolInstalled = false;
 
 protocol.registerSchemesAsPrivileged([
   {
-    scheme: AXCHAT_PROTOCOL_SCHEME,
+    scheme: Orlinx_PROTOCOL_SCHEME,
     privileges: {
       standard: true,
       secure: true,
@@ -93,11 +93,11 @@ const installProtocolHandler = () => {
   if (protocolInstalled) return;
   protocolInstalled = true;
 
-  session.defaultSession.protocol.handle(AXCHAT_PROTOCOL_SCHEME, async (request) => {
+  session.defaultSession.protocol.handle(Orlinx_PROTOCOL_SCHEME, async (request) => {
     try {
       const url = new URL(request.url);
-      if (url.host !== AXCHAT_PROTOCOL_HOST) {
-        return createJsonResponse(404, { error: 'Unknown AXCHAT protocol host.' });
+      if (url.host !== Orlinx_PROTOCOL_HOST) {
+        return createJsonResponse(404, { error: 'Unknown Orlinx protocol host.' });
       }
 
       const resolved = await resolveForwardTarget(request, url);
@@ -119,7 +119,7 @@ const installProtocolHandler = () => {
 
       return await net.fetch(resolved.targetUrl, requestInit);
     } catch (error) {
-      console.error('AXCHAT protocol bridge request failed:', {
+      console.error('Orlinx protocol bridge request failed:', {
         requestUrl: request.url,
         method: request.method,
         error: error instanceof Error ? error.message : error,
@@ -155,9 +155,10 @@ const setAllowHttpTargets = async (enabled) => {
 const installProxyAuthHeaderInjection = () => {};
 
 module.exports = {
-  AXCHAT_PROTOCOL_ORIGIN,
+  Orlinx_PROTOCOL_ORIGIN,
   startProxy,
   stopProxy,
   setAllowHttpTargets,
   installProxyAuthHeaderInjection,
 };
+

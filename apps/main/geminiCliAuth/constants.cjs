@@ -3,7 +3,7 @@ const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const USER_INFO_URL = 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json';
 const CODE_ASSIST_BASE_URL = 'https://cloudcode-pa.googleapis.com/v1internal';
-const GEMINI_CLI_LOCAL_CONFIG_NAME = 'axchat.local.json';
+const GEMINI_CLI_LOCAL_CONFIG_NAME = 'orlinx.local.json';
 const REDIRECT_PATH = '/oauth2callback';
 const SCOPES = [
   'https://www.googleapis.com/auth/cloud-platform',
@@ -34,3 +34,4 @@ module.exports = {
   LEGACY_TIER_ID,
   CODE_ASSIST_HEADERS,
 };
+

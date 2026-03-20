@@ -18,7 +18,7 @@ import { writeAppStorage } from '@/infrastructure/persistence/storageKeys';
 
 export const useElectronBodyClass = () => {
   useEffect(() => {
-    const isElectron = typeof window !== 'undefined' && !!window.axchat;
+    const isElectron = typeof window !== 'undefined' && !!window.orlinx;
     document.body.classList.toggle('electron', isElectron);
   }, []);
 };
@@ -42,7 +42,7 @@ export const useUpdaterDownloadPrompt = () => {
   const hasPromptedAvailableUpdateRef = useRef(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.axchat) return;
+    if (typeof window === 'undefined' || !window.orlinx) return;
 
     const resetPromptFlagIfNeeded = (status: UpdaterStatus['status']) => {
       if (status !== 'available') {
@@ -63,7 +63,7 @@ export const useUpdaterDownloadPrompt = () => {
       hasPromptedAvailableUpdateRef.current = true;
       const shouldOpenDownload = window.confirm(t('settings.update.prompt.downloadNow'));
       if (shouldOpenDownload) {
-        void window.axchat?.openUpdateDownload?.();
+        void window.orlinx?.openUpdateDownload?.();
       }
     };
 
@@ -104,7 +104,7 @@ export const useAppMetadataSync = ({
     });
 
     void (async () => {
-      const version = await window.axchat?.getAppVersion?.();
+      const version = await window.orlinx?.getAppVersion?.();
       if (!active || !version) return;
       setAppVersion(version);
       writeAppStorage('appVersion', version);
@@ -149,7 +149,7 @@ export const useSystemLanguageSync = ({
 
       let nextLanguage: Language | null = null;
       try {
-        const systemLanguage = await window.axchat?.getSystemLanguage?.();
+        const systemLanguage = await window.orlinx?.getSystemLanguage?.();
         nextLanguage = syncExternalSystemLanguage(systemLanguage);
       } catch (error) {
         console.error('Failed to read system language from Electron:', error);
@@ -175,7 +175,7 @@ export const useSystemLanguageSync = ({
     window.addEventListener('languagechange', handleSystemLanguageChanged);
     window.addEventListener('focus', handleSystemLanguageChanged);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    const removeNativeLanguageListener = window.axchat?.onSystemLanguageChanged?.(
+    const removeNativeLanguageListener = window.orlinx?.onSystemLanguageChanged?.(
       handleSystemLanguageChanged
     );
 
@@ -208,7 +208,7 @@ export const useSystemThemeSync = ({
     };
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const removeNativeThemeListener = window.axchat?.onSystemThemeChanged?.(syncSystemTheme);
+    const removeNativeThemeListener = window.orlinx?.onSystemThemeChanged?.(syncSystemTheme);
 
     if (typeof mediaQuery.addEventListener === 'function') {
       mediaQuery.addEventListener('change', syncSystemTheme);
@@ -228,3 +228,4 @@ export const useSystemThemeSync = ({
     };
   }, [setTheme, themePreference]);
 };
+

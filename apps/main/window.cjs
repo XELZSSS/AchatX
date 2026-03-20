@@ -176,7 +176,7 @@ const createMainWindow = async ({ isDev, shouldPreventClose }) => {
       sandbox: true,
       preload: path.join(app.getAppPath(), 'apps', 'main', 'preload.cjs'),
       additionalArguments: [
-        `--axchat-app-storage-bootstrap=${encodeAppStorageBootstrap(listAppStorageValues)}`,
+        `--orlinx-app-storage-bootstrap=${encodeAppStorageBootstrap(listAppStorageValues)}`,
       ],
     },
   });
@@ -291,3 +291,4 @@ module.exports = {
   registerWindowIpcHandlers,
   showWindow,
 };
+

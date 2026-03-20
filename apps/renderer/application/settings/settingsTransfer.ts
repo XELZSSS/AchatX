@@ -11,7 +11,7 @@ import {
 import { MAX_TOOL_CALL_ROUNDS, MIN_TOOL_CALL_ROUNDS } from '@/infrastructure/providers/utils';
 import { t } from '@/shared/utils/i18n';
 
-export const SETTINGS_TRANSFER_SCHEMA = 'axchat-settings';
+export const SETTINGS_TRANSFER_SCHEMA = 'orlinx-settings';
 export const SETTINGS_TRANSFER_VERSION = 2;
 
 export type SettingsImportMode = 'merge' | 'replace';
@@ -278,3 +278,4 @@ export const applyParsedSettingsImport = ({
     providerSettings,
   };
 };
+

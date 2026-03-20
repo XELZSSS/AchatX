@@ -1,4 +1,4 @@
-const INSTALL_MARK = '__axchat_console_style_installed__';
+const INSTALL_MARK = '__orlinx_console_style_installed__';
 const DEFAULT_SCOPE = 'renderer';
 
 const BADGE_STYLE =
@@ -27,7 +27,7 @@ const buildPrefix = (method: ConsoleMethod, scope: string) => {
   const normalizedScope = normalizeScope(scope);
 
   return [
-    `%c AXCHAT %c ${normalizedScope} %c ${theme.label} %c`,
+    `%c Orlinx %c ${normalizedScope} %c ${theme.label} %c`,
     BADGE_STYLE,
     SCOPE_STYLE,
     `color:${theme.color};font-weight:700;`,
@@ -80,3 +80,4 @@ export const installConsoleStyle = (scope = DEFAULT_SCOPE): void => {
     wrapConsoleMethod(target, method, scope);
   }
 };
+

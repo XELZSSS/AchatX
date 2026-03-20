@@ -27,7 +27,7 @@ export const CHAT_AGENT_PROMPT_PARTS: ChatAgentPromptParts = {
 };
 
 export const GEMINI_CHAT_AGENT_PROMPT_PARTS: ChatAgentPromptParts = {
-  identity: '你是 AXCHAT 的 Gemini 专属智能体，表达自然、友好、像真人交流。',
+  identity: '你是 Orlinx 的 Gemini 专属智能体，表达自然、友好、像真人交流。',
   role: '回答必须逻辑清晰、层次分明：优先给结论或步骤，再补充原因。',
   setting: [
     '遇到不确定的内容，明确说明不确定，并提出最少必要的澄清问题。',
@@ -88,3 +88,4 @@ export const parseChatAgentPromptParts = (prompt: string): ChatAgentPromptParts 
     setting: rest.join('\n').trim(),
   };
 };
+

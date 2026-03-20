@@ -1,9 +1,9 @@
 import * as proxyConfig from '../../../shared/proxy-config';
 
-const AXCHAT_PROTOCOL_ORIGIN = 'axchat://local';
+const Orlinx_PROTOCOL_ORIGIN = 'orlinx://local';
 
 export const getProxyBaseUrl = (): string => {
-  return AXCHAT_PROTOCOL_ORIGIN;
+  return Orlinx_PROTOCOL_ORIGIN;
 };
 
 export const buildProxyUrl = (path: string): string => {
@@ -38,3 +38,4 @@ export const getProxyAuthHeadersForTarget = (target?: string): Record<string, st
   if (!isLocalProxyTarget(target)) return {};
   return getProxyAuthHeaders();
 };
+

@@ -28,18 +28,19 @@ export const DEFAULT_UPDATER_STATUS: UpdaterStatus = {
 };
 
 export const getUpdaterStatus = async (): Promise<UpdaterStatus> => {
-  const status = await window.axchat?.getUpdaterStatus?.();
+  const status = await window.orlinx?.getUpdaterStatus?.();
   return status ?? DEFAULT_UPDATER_STATUS;
 };
 
 export const subscribeUpdaterStatus = (callback: (status: UpdaterStatus) => void): (() => void) => {
-  return window.axchat?.onUpdaterStatus?.(callback as (status: unknown) => void) ?? (() => {});
+  return window.orlinx?.onUpdaterStatus?.(callback as (status: unknown) => void) ?? (() => {});
 };
 
 export const checkForUpdates = async (): Promise<void> => {
-  await window.axchat?.checkForUpdates?.();
+  await window.orlinx?.checkForUpdates?.();
 };
 
 export const openUpdateDownload = async (): Promise<void> => {
-  await window.axchat?.openUpdateDownload?.();
+  await window.orlinx?.openUpdateDownload?.();
 };
+

@@ -1,11 +1,11 @@
 <div align="center">
-<img src="assets/icons/app.png" alt="AXCHAT" width="96" height="96" />
-<h1>AXCHAT</h1>
+<img src="assets/icons/app.png" alt="Orlinx" width="96" height="96" />
+<h1>Orlinx</h1>
   <p>
     <a href="./README.md">English</a> |
     <a href="./README.zh-CN.md">中文</a>
   </p>
-  <p>AXCHAT 是一个基于跨平台方案的桌面 AI Chat 客户端。</p>
+  <p>Orlinx 是一个基于跨平台方案的桌面 AI Chat 客户端。</p>
 </div>
 
 ## 功能简介
@@ -61,7 +61,7 @@ npm run electron:dev
 
 ## 配置说明
 
-- 特别注意：使用 Gemini CLI OAuth 登录时，需要在控制台获取登录凭证，并配置到 `axchat.local.json` 文件。
+- 特别注意：使用 Gemini CLI OAuth 登录时，需要在控制台获取登录凭证，并配置到 `orlinx.local.json` 文件。
 - 可在设置页直接填写 `GEMINI_CLI_PROJECT_ID` 和 `GOOGLE_CLOUD_PROJECT`，也支持环境变量。
 - 搜索功能支持 `Tavily`、`Exa` 和 `SearXNG`，推荐优先在设置页中配置。
 
@@ -71,7 +71,7 @@ npm run electron:dev
 - `TAVILY_API_KEY`
 - `EXA_API_KEY`
 - `SEARXNG_BASE_URL`
-- `AXCHAT_PROXY_ALLOW_HTTP_TARGETS`
+- `Orlinx_PROXY_ALLOW_HTTP_TARGETS`
 
 ## 项目目录
 
@@ -86,3 +86,4 @@ apps/
   shared/     共享配置
 assets/       图标与静态资源
 ```
+

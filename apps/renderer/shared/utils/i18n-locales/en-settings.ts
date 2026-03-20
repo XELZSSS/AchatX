@@ -162,7 +162,7 @@ export const EN_SETTINGS_TRANSLATIONS = {
   'settings.transfer.import.mergeSuccess': 'Import merged',
   'settings.transfer.import.replaceSuccess': 'Import replaced',
   'settings.transfer.import.error.invalidJson': 'File is not valid JSON',
-  'settings.transfer.import.error.invalidSchema': 'File is not a supported AXCHAT export',
+  'settings.transfer.import.error.invalidSchema': 'File is not a supported Orlinx export',
   'settings.transfer.import.error.unsupportedVersion': 'Export version is not supported',
   'settings.transfer.preview.exportedAt': 'Exported at',
   'settings.transfer.preview.providerCount': 'Providers',
@@ -214,9 +214,9 @@ export const EN_SETTINGS_TRANSLATIONS = {
   'settings.clearCache.button': 'Clear',
   'settings.clearCache.title': 'App data',
   'settings.clearCache.cardTitle': 'Clear all app data',
-  'settings.clearCache.description': 'Clear all app data. axchat.local.json will not be deleted',
-  'settings.clearCache.confirm': 'Clear all app data? AXCHAT will restart automatically.',
-  'settings.clearCache.confirmPortable': 'Clear all app data? AXCHAT will exit.',
+  'settings.clearCache.description': 'Clear all app data. orlinx.local.json will not be deleted',
+  'settings.clearCache.confirm': 'Clear all app data? Orlinx will restart automatically.',
+  'settings.clearCache.confirmPortable': 'Clear all app data? Orlinx will exit.',
   'settings.clearCache.confirmAction': 'Clear',
   'settings.clearCache.success': 'App data cleared. Restarting...',
   'settings.clearCache.successPortable': 'App data cleared. Exiting...',
@@ -261,3 +261,4 @@ export const EN_SETTINGS_TRANSLATIONS = {
   'settings.titlePrompt.user':
     'Generate a very short, concise title (max 4-5 words) for a chat that starts with this message: "{message}".',
 } as const;
+

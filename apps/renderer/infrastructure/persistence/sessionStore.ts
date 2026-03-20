@@ -5,10 +5,10 @@ import {
 } from '@/infrastructure/persistence/sessionStoreSerialization';
 import * as localSessionStore from '@/infrastructure/persistence/sessionStoreLocal';
 
-type NativeSessionStorage = NonNullable<Window['axchat']>;
+type NativeSessionStorage = NonNullable<Window['orlinx']>;
 
 const getNativeSessionStorage = (): NativeSessionStorage | null => {
-  return typeof window !== 'undefined' && window.axchat?.listStoredSessions ? window.axchat : null;
+  return typeof window !== 'undefined' && window.orlinx?.listStoredSessions ? window.orlinx : null;
 };
 
 const withSessionStorage = async <T>(
@@ -111,3 +111,4 @@ export const searchSessionSummaries = async (
     () => localSessionStore.searchSessionSummaries(query, limit)
   );
 };
+

@@ -35,7 +35,7 @@ const rewriteRequestInput = (input: RequestInfo | URL): RequestInfo | URL => {
 
 export const installFetchBridge = (): void => {
   if (typeof window === 'undefined') return;
-  if ((window as Window & { __axchatFetchBridgeInstalled?: boolean }).__axchatFetchBridgeInstalled) {
+  if ((window as Window & { __orlinxFetchBridgeInstalled?: boolean }).__orlinxFetchBridgeInstalled) {
     return;
   }
 
@@ -44,6 +44,7 @@ export const installFetchBridge = (): void => {
     return originalFetch(rewriteRequestInput(input), init);
   };
 
-  (window as Window & { __axchatFetchBridgeInstalled?: boolean }).__axchatFetchBridgeInstalled =
+  (window as Window & { __orlinxFetchBridgeInstalled?: boolean }).__orlinxFetchBridgeInstalled =
     true;
 };
+

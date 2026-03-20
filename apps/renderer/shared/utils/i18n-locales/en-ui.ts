@@ -1,6 +1,6 @@
 export const EN_UI_TRANSLATIONS = {
-  'app.title': 'AXCHAT',
-  'header.mobileTitle': 'AXCHAT',
+  'app.title': 'Orlinx',
+  'header.mobileTitle': 'Orlinx',
   'sidebar.newChat': 'New Chat',
   'sidebar.searchPlaceholder': 'Search',
   'sidebar.history': 'History',
@@ -33,7 +33,7 @@ export const EN_UI_TRANSLATIONS = {
   'titlebar.restore': 'Restore',
   'titlebar.close': 'Close',
   'role.user': 'User',
-  'role.model': 'AXCHAT',
+  'role.model': 'Orlinx',
   'copy.copy': 'Copy',
   'copy.copied': 'Copied',
   'code.copyCode': 'Copy code',
@@ -55,3 +55,4 @@ export const EN_UI_TRANSLATIONS = {
   'language.en': 'EN',
   'language.zhCN': '中文',
 } as const;
+

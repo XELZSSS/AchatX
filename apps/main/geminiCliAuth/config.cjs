@@ -67,7 +67,7 @@ const requireGeminiCliOAuthConfig = () => {
   const config = getGeminiCliOAuthConfig();
   if (!config) {
     throw new Error(
-      'Missing Gemini CLI OAuth client config. Put clientId and clientSecret in axchat.local.json.'
+      'Missing Gemini CLI OAuth client config. Put clientId and clientSecret in orlinx.local.json.'
     );
   }
   return config;
@@ -99,7 +99,7 @@ const buildAuthorizeUrl = ({ challenge, state, redirectUri }) => {
   url.searchParams.set('state', state);
   url.searchParams.set('access_type', 'offline');
   url.searchParams.set('prompt', 'consent');
-  url.hash = 'axchat';
+  url.hash = 'orlinx';
   return url.toString();
 };
 
@@ -111,3 +111,4 @@ module.exports = {
   createRedirectUri,
   buildAuthorizeUrl,
 };
+

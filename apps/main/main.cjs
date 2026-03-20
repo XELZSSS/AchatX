@@ -54,12 +54,12 @@ const removeFileIfPresent = (filePath) => {
 };
 
 const isDev = !app.isPackaged;
-const APP_USER_MODEL_ID = 'com.axchat.app';
+const APP_USER_MODEL_ID = 'com.orlinx.app';
 const shouldPreventClose = () => !isQuitting && process.platform === 'win32';
 
 let isQuitting = false;
 
-const allowSecondInstance = isDev && process.env.AXCHAT_ALLOW_SECOND_INSTANCE === '1';
+const allowSecondInstance = isDev && process.env.Orlinx_ALLOW_SECOND_INSTANCE === '1';
 if (!allowSecondInstance) {
   const gotLock = app.requestSingleInstanceLock();
   if (!gotLock) {
@@ -178,3 +178,4 @@ void app.whenReady().then(async () => {
     }
   });
 });
+

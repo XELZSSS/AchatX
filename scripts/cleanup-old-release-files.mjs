@@ -11,9 +11,9 @@ const packageJsonPath = path.join(repoRoot, 'package.json');
 const releaseDir = path.join(repoRoot, 'release');
 
 const STALE_RELEASE_PATTERNS = [
-  /^AXCHAT Setup (?<version>.+)\.exe$/,
-  /^AXCHAT Setup (?<version>.+)\.exe\.blockmap$/,
-  /^AXCHAT\.(?<version>.+)\.portable\.exe$/,
+  /^Orlinx Setup (?<version>.+)\.exe$/,
+  /^Orlinx Setup (?<version>.+)\.exe\.blockmap$/,
+  /^Orlinx\.(?<version>.+)\.portable\.exe$/,
 ];
 
 const VERSION_LIKE_PATTERN = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
@@ -72,3 +72,4 @@ const main = async () => {
 if (process.argv[1] === __filename) {
   await main();
 }
+

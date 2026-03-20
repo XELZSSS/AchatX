@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
 
-const DB_FILENAME = 'axchat.sqlite';
+const DB_FILENAME = 'orlinx.sqlite';
 const DB_SCHEMA_VERSION = 2;
 const DB_SIDECARE_SUFFIXES = ['', '-wal', '-shm'];
 
@@ -115,3 +115,4 @@ module.exports = {
   getDatabasePath,
   resetDatabaseFiles,
 };
+

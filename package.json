@@ -1,7 +1,7 @@
 {
-  "name": "axchat",
-  "description": "AXCHAT desktop chat client",
-  "author": "AXCHAT",
+  "name": "orlinx",
+  "description": "Orlinx desktop chat client",
+  "author": "Orlinx",
   "license": "GPL-3.0-only",
   "private": true,
   "version": "1.0.0",
@@ -73,8 +73,8 @@
     "yauzl": "^3.2.1"
   },
   "build": {
-    "appId": "com.axchat.app",
-    "productName": "AXCHAT",
+    "appId": "com.orlinx.app",
+    "productName": "Orlinx",
     "directories": {
       "output": "release",
       "buildResources": "."
@@ -93,7 +93,7 @@
       }
     ],
     "win": {
-      "executableName": "AXCHAT",
+      "executableName": "Orlinx",
       "icon": "assets/icons/app.ico",
       "target": [
         "nsis"
@@ -114,8 +114,9 @@
       {
         "provider": "github",
         "owner": "XELZSSS",
-        "repo": "AXCHAT"
+        "repo": "Orlinx"
       }
     ]
   }
 }
+

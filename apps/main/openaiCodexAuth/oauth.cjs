@@ -171,7 +171,7 @@ const waitForAuthorizationCode = ({ expectedState, timeoutMs = LOGIN_TIMEOUT_MS 
         response.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
         response.end(
           createCallbackHtml(
-            'AXCHAT login failed',
+            'Orlinx login failed',
             'The OAuth flow returned an error. You can close this tab.'
           )
         );
@@ -186,7 +186,7 @@ const waitForAuthorizationCode = ({ expectedState, timeoutMs = LOGIN_TIMEOUT_MS 
         response.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
         response.end(
           createCallbackHtml(
-            'AXCHAT login failed',
+            'Orlinx login failed',
             'The OAuth callback could not be verified. Start the sign-in flow again.'
           )
         );
@@ -200,8 +200,8 @@ const waitForAuthorizationCode = ({ expectedState, timeoutMs = LOGIN_TIMEOUT_MS 
       response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       response.end(
         createCallbackHtml(
-          'AXCHAT login complete',
-          'You can close this browser tab and return to AXCHAT.'
+          'Orlinx login complete',
+          'You can close this browser tab and return to Orlinx.'
         )
       );
       finish(() => {
@@ -238,3 +238,4 @@ module.exports = {
   refreshAccessToken,
   waitForAuthorizationCode,
 };
+

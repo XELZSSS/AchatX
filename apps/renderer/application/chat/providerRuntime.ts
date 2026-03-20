@@ -9,6 +9,11 @@ import {
 } from '@/infrastructure/providers/types';
 import { ProviderChat } from '@/infrastructure/providers/types';
 
+export type ConversationContext = {
+  providerId: ProviderId;
+  modelName: string;
+};
+
 const areHeadersEqual = (
   a: Array<{ key: string; value: string }> | undefined,
   b: Array<{ key: string; value: string }> | undefined
@@ -25,7 +30,8 @@ const areHeadersEqual = (
 const isJsonEqual = <T>(a: T | undefined, b: T | undefined): boolean =>
   JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
-const isTrimmedStringEqual = (a?: string, b?: string): boolean => (a ?? '').trim() === (b ?? '').trim();
+const isTrimmedStringEqual = (a?: string, b?: string): boolean =>
+  (a ?? '').trim() === (b ?? '').trim();
 
 const isReasoningPreferenceEqual = (
   left?: ProviderReasoningPreference,
@@ -52,6 +58,13 @@ export class ProviderRuntime {
     return this.provider.getId();
   }
 
+  getConversationContext(): ConversationContext {
+    return {
+      providerId: this.provider.getId(),
+      modelName: this.provider.getModelName(),
+    };
+  }
+
   private resetHistorySyncState(): void {
     this.historySyncGeneration += 1;
     this.latestHistorySyncRequest = null;
@@ -70,9 +83,18 @@ export class ProviderRuntime {
     apply(nextValue);
   }
 
-  setProvider(providerId: ProviderId): void {
-    this.resetHistorySyncState();
-    this.provider = this.router.setActiveProvider(providerId);
+  applyConversationContext(
+    providerId: ProviderId,
+    modelName: string,
+    settings: ProviderSettings
+  ): void {
+    this.applyProviderSettings(providerId, settings);
+
+    const resolvedModelName =
+      modelName.trim() || settings?.modelName?.trim() || this.provider.getModelName();
+    if (resolvedModelName !== this.provider.getModelName()) {
+      this.provider.setModelName(resolvedModelName);
+    }
   }
 
   getModelName(): string {
@@ -111,10 +133,6 @@ export class ProviderRuntime {
 
     this.syncProviderValue(this.provider.getApiKey(), settings?.apiKey, (nextApiKey) => {
       this.provider.setApiKey(nextApiKey);
-    });
-
-    this.syncProviderValue(this.provider.getModelName(), settings?.modelName ?? '', (nextModel) => {
-      this.provider.setModelName(nextModel);
     });
 
     if (this.provider.setBaseUrl) {

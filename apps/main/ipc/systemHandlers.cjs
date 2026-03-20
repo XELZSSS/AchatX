@@ -93,6 +93,9 @@ const buildSystemHandlers = ({
   clearPersistedLocalData,
   recoverFromFailedLocalDataReset,
 }) => ({
+  'storage:app:read-sync': (_event, key) => {
+    return readAppStorageValue(key);
+  },
   'storage:app:read': async (_event, key) => {
     return readAppStorageValue(key);
   },

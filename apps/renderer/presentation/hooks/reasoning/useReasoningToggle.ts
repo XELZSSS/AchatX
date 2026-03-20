@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SetStateAction } from 'react';
 import type { ChatService } from '@/application/chat/chatService';
-import { listProviderIds } from '@/infrastructure/providers/registry';
 import { readAppStorage, writeAppStorage } from '@/infrastructure/persistence/storageKeys';
 
 type UseReasoningToggleOptions = {
@@ -14,7 +13,7 @@ const REASONING_ENABLED_STORAGE_KEY = 'reasoningEnabled';
 type ProviderToggleMap = Record<string, boolean>;
 
 const parseStoredToggleMap = (value: string | null): ProviderToggleMap | null => {
-  if (!value || value === 'true' || value === 'false') {
+  if (!value) {
     return null;
   }
 
@@ -35,28 +34,14 @@ const parseStoredToggleMap = (value: string | null): ProviderToggleMap | null =>
   }
 };
 
-const resolveStoredToggleMap = (value: string | null): ProviderToggleMap => {
-  const toggleMap = parseStoredToggleMap(value);
-  if (toggleMap) {
-    return toggleMap;
-  }
-
-  const legacyValue = value === 'true';
-  return Object.fromEntries(listProviderIds().map((providerId) => [providerId, legacyValue]));
-};
-
 const readPersistedReasoningEnabled = (providerId: string): boolean => {
   const stored = readAppStorage(REASONING_ENABLED_STORAGE_KEY);
   const toggleMap = parseStoredToggleMap(stored);
-  if (toggleMap) {
-    return toggleMap[providerId] ?? false;
-  }
-
-  return stored === 'true';
+  return toggleMap?.[providerId] ?? false;
 };
 
 const persistReasoningEnabled = (providerId: string, enabled: boolean): void => {
-  const toggleMap = resolveStoredToggleMap(readAppStorage(REASONING_ENABLED_STORAGE_KEY));
+  const toggleMap = parseStoredToggleMap(readAppStorage(REASONING_ENABLED_STORAGE_KEY)) ?? {};
   writeAppStorage(
     REASONING_ENABLED_STORAGE_KEY,
     JSON.stringify({ ...toggleMap, [providerId]: enabled })

@@ -1,6 +1,6 @@
 /* global process */
-const fs = require('fs');
 const path = require('path');
+const { readAppStorageValue, writeAppStorageValue } = require('../storage/appStorage.cjs');
 
 const loadProxyConfig = () => {
   try {
@@ -11,26 +11,32 @@ const loadProxyConfig = () => {
   }
 };
 
-const PROXY_STATE_FILE_NAME = 'proxy-state.json';
+const APP_SETTINGS_STORAGE_KEY = 'appSettings';
 
-const getProxyStatePath = (app) => path.join(app.getPath('userData'), PROXY_STATE_FILE_NAME);
-
-const loadProxyState = (app) => {
-  const fallback = { allowHttpTargets: false };
+const loadProxyState = () => {
   try {
-    const raw = fs.readFileSync(getProxyStatePath(app), 'utf-8');
+    const raw = readAppStorageValue(APP_SETTINGS_STORAGE_KEY);
+    if (!raw) {
+      return { allowHttpTargets: false };
+    }
+
     const parsed = JSON.parse(raw);
     return {
       allowHttpTargets: parsed?.allowHttpTargets === true,
     };
   } catch {
-    return fallback;
+    return { allowHttpTargets: false };
   }
 };
 
-const persistProxyState = (app, state) => {
+const persistProxyState = (state) => {
   try {
-    fs.writeFileSync(getProxyStatePath(app), JSON.stringify(state));
+    const raw = readAppStorageValue(APP_SETTINGS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const nextSettings =
+      parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    nextSettings.allowHttpTargets = state?.allowHttpTargets === true;
+    writeAppStorageValue(APP_SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
   } catch {
     // ignore persistence failures
   }

@@ -18,14 +18,16 @@ type SettingsModalTabContentProps = {
   language: Language;
   theme: Theme;
   accentPreference: AccentPreference;
-  modelName: string;
+  currentConversationModelName: string;
   appVersion: string;
   updaterStatus: import('@/infrastructure/updater/updaterClient').UpdaterStatus;
   updateStatusText: string;
   includeSecretsInExport: boolean;
   configTransferBusy: boolean;
   configTransferNotice: ConfigTransferNotice | null;
-  pendingImportPreview: import('@/application/settings/settingsTransfer').SettingsImportPreview | null;
+  pendingImportPreview:
+    | import('@/application/settings/settingsTransfer').SettingsImportPreview
+    | null;
   interactionLockReason: string | null;
   clearCacheNotice: string | null;
   clearCacheStatus: 'success' | 'error' | null;
@@ -47,7 +49,7 @@ export const SettingsModalTabContent = ({
   language,
   theme,
   accentPreference,
-  modelName,
+  currentConversationModelName,
   appVersion,
   updaterStatus,
   updateStatusText,
@@ -68,14 +70,8 @@ export const SettingsModalTabContent = ({
   onOpenClearCache,
   onSetIncludeSecretsInExport,
 }: SettingsModalTabContentProps) => {
-  const {
-    state,
-    validation,
-    providerActions,
-    appearanceActions,
-    searchActions,
-    versionActions,
-  } = controller;
+  const { state, validation, providerActions, appearanceActions, searchActions, versionActions } =
+    controller;
 
   switch (state.ui.activeTab) {
     case 'provider':
@@ -84,7 +80,7 @@ export const SettingsModalTabContent = ({
           providerId={state.provider.providerId}
           providerOptions={providerOptions}
           modelName={state.provider.modelName}
-          currentModelName={modelName}
+          currentConversationModelName={currentConversationModelName}
           apiKey={state.provider.apiKey}
           requestMode={state.provider.requestMode}
           baseUrl={state.provider.baseUrl}

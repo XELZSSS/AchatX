@@ -33,6 +33,7 @@ interface SettingsModalProps {
   providerSettings: ProviderSettingsMap;
   providerId: ProviderId;
   modelName: string;
+  currentConversationModelName: string;
   apiKey: string;
   requestMode?: OpenAIRequestMode;
   language: Language;
@@ -64,6 +65,7 @@ const SettingsModal = ({
   providerSettings,
   providerId,
   modelName,
+  currentConversationModelName,
   apiKey,
   requestMode,
   language,
@@ -226,7 +228,7 @@ const SettingsModal = ({
                 language={language}
                 theme={theme}
                 accentPreference={state.app.accentPreference}
-                modelName={modelName}
+                currentConversationModelName={currentConversationModelName}
                 appVersion={appVersion}
                 updaterStatus={updaterStatus}
                 updateStatusText={updateStatusText}

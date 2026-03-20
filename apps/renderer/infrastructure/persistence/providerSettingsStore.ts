@@ -13,7 +13,6 @@ import {
   normalizeChatAgentPrompt,
   normalizeChatAgentPromptParts,
   normalizeChatAgentSearchEnabled,
-  parseChatAgentPromptToParts,
   buildChatAgentPromptFromParts,
   getDefaultChatAgentSearchEnabled,
 } from '@/infrastructure/providers/chatAgent';
@@ -25,8 +24,8 @@ import { sanitizeApiKey } from '@/infrastructure/providers/utils';
 import { readAppStorage, writeAppStorage } from '@/infrastructure/persistence/storageKeys';
 import type { OpenAIRequestMode } from '@/infrastructure/providers/types';
 import {
-  loadActiveProviderId as loadAppActiveProviderId,
-  persistActiveProviderId as persistAppActiveProviderId,
+  loadDefaultProviderId as loadAppDefaultProviderId,
+  persistDefaultProviderId as persistAppDefaultProviderId,
 } from '@/infrastructure/persistence/appSettingsStore';
 
 const canUseAppStorage = (): boolean => typeof window !== 'undefined';
@@ -178,10 +177,7 @@ const normalizeStoredProviderSettings = (
     providerId,
     storedSettings.chatAgentPromptParts
   );
-  const resolvedParts =
-    storedParts ??
-    fallbackParts ??
-    parseChatAgentPromptToParts(providerId, storedSettings.chatAgentPrompt);
+  const resolvedParts = storedParts ?? fallbackParts;
   const promptFromParts = buildChatAgentPromptFromParts(providerId, resolvedParts);
   const promptFallback = defaults.chatAgentPrompt;
   const chatAgentSearchEnabledFallback =
@@ -210,25 +206,19 @@ const normalizeStoredProviderSettings = (
     chatAgentEnabled:
       normalizeChatAgentEnabled(providerId, storedSettings.chatAgentEnabled) ??
       defaults.chatAgentEnabled,
-    chatAgentPrompt: normalizeChatAgentPrompt(
-      providerId,
-      promptFromParts ??
-        (storedSettings.chatAgentPrompt !== undefined
-          ? String(storedSettings.chatAgentPrompt)
-          : promptFallback)
-    ),
+    chatAgentPrompt: normalizeChatAgentPrompt(providerId, promptFromParts ?? promptFallback),
     chatAgentPromptParts:
       resolvedParts ?? normalizeChatAgentPromptParts(providerId, defaults.chatAgentPromptParts),
     chatAgentSearchEnabled,
   };
 };
 
-export const loadActiveProviderId = (): ProviderId => {
-  return loadAppActiveProviderId();
+export const loadDefaultProviderId = (): ProviderId => {
+  return loadAppDefaultProviderId();
 };
 
-export const persistActiveProviderId = (providerId: ProviderId): void => {
-  persistAppActiveProviderId(providerId);
+export const persistDefaultProviderId = (providerId: ProviderId): void => {
+  persistAppDefaultProviderId(providerId);
 };
 
 export const loadProviderSettings = (): Record<ProviderId, ProviderSettings> => {

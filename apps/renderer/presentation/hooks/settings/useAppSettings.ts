@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { ChatService } from '@/application/chat/chatService';
-import { ProviderId } from '@/shared/types/chat';
 import { ProviderSettingsMap, SaveSettingsPayload } from '@/application/settings/settingsTypes';
 import { Language, LanguagePreference, setLanguagePreference, t } from '@/shared/utils/i18n';
 import {
@@ -17,15 +16,14 @@ import type { ProviderSettings } from '@/infrastructure/providers/defaults';
 type UseAppSettingsOptions = {
   chatService: ChatService;
   providerSettings: ProviderSettingsMap;
-  currentProviderId: ProviderId;
-  syncProviderState: () => void;
+  syncDefaultProviderState: () => void;
+  syncConversationState: () => void;
   setLanguagePreferenceState: Dispatch<SetStateAction<LanguagePreference>>;
   setLanguageState: Dispatch<SetStateAction<Language>>;
   setThemePreferenceState: Dispatch<SetStateAction<ThemePreference>>;
   setThemeState: Dispatch<SetStateAction<Theme>>;
   setAccentPreferenceState: Dispatch<SetStateAction<AccentPreference>>;
-  commitCurrentSession: (options?: { force?: boolean }) => void;
-  startNewChat: () => void;
+  hasMessages: boolean;
 };
 
 const haveConversationSettingsChanged = (
@@ -58,15 +56,14 @@ const haveConversationSettingsChanged = (
 export const useAppSettings = ({
   chatService,
   providerSettings,
-  currentProviderId,
-  syncProviderState,
+  syncDefaultProviderState,
+  syncConversationState,
   setLanguagePreferenceState,
   setLanguageState,
   setThemePreferenceState,
   setThemeState,
   setAccentPreferenceState,
-  commitCurrentSession,
-  startNewChat,
+  hasMessages,
 }: UseAppSettingsOptions) => {
   const syncTrayLabels = useCallback((language: Language) => {
     void window.axchat?.setTrayLanguage?.(language);
@@ -108,39 +105,36 @@ export const useAppSettings = ({
         chatAgentPromptParts: value.provider.chatAgentPromptParts,
         chatAgentSearchEnabled: value.provider.chatAgentSearchEnabled,
       };
-      const shouldRestartConversation =
-        value.app.activeProviderId !== currentProviderId ||
-        haveConversationSettingsChanged(previousTargetSettings, nextTargetSettings);
 
-      if (shouldRestartConversation) {
-        commitCurrentSession({ force: true });
+      const shouldRefreshEditedProvider = haveConversationSettingsChanged(
+        previousTargetSettings,
+        nextTargetSettings
+      );
+
+      if (shouldRefreshEditedProvider) {
+        chatService.updateProviderSettings(value.provider.providerId, nextTargetSettings);
       }
 
-      chatService.updateProviderSettings(value.provider.providerId, nextTargetSettings);
-
-      if (value.app.activeProviderId !== chatService.getProviderId()) {
-        chatService.setProvider(value.app.activeProviderId);
+      if (!hasMessages) {
+        chatService.resetChat();
+        chatService.activateDefaultConversationContext();
       }
 
-      if (shouldRestartConversation) {
-        startNewChat();
-      }
-
-      syncProviderState();
+      syncDefaultProviderState();
+      syncConversationState();
       void window.axchat?.setProxyAllowHttpTargets?.(value.app.allowHttpTargets);
     },
     [
       chatService,
-      commitCurrentSession,
-      currentProviderId,
+      hasMessages,
       providerSettings,
       setLanguagePreferenceState,
       setLanguageState,
       setThemePreferenceState,
       setThemeState,
       setAccentPreferenceState,
-      startNewChat,
-      syncProviderState,
+      syncDefaultProviderState,
+      syncConversationState,
       syncTrayLabels,
     ]
   );
@@ -169,38 +163,26 @@ export const useAppSettings = ({
       persistAppSettings(appSettings);
       void window.axchat?.setProxyAllowHttpTargets?.(appSettings.allowHttpTargets);
 
-      const shouldRestartConversation =
-        appSettings.activeProviderId !== currentProviderId ||
-        haveConversationSettingsChanged(
-          providerSettings[appSettings.activeProviderId],
-          importedProviderSettings[appSettings.activeProviderId]
-        );
+      chatService.replaceAllProviderSettings(importedProviderSettings);
 
-      if (shouldRestartConversation) {
-        commitCurrentSession({ force: true });
+      if (!hasMessages) {
+        chatService.resetChat();
+        chatService.activateDefaultConversationContext();
       }
 
-      chatService.replaceAllProviderSettings(
-        importedProviderSettings,
-        appSettings.activeProviderId
-      );
-      syncProviderState();
-      if (shouldRestartConversation) {
-        startNewChat();
-      }
+      syncDefaultProviderState();
+      syncConversationState();
     },
     [
       chatService,
-      commitCurrentSession,
-      currentProviderId,
-      providerSettings,
+      hasMessages,
       setLanguagePreferenceState,
       setLanguageState,
       setThemePreferenceState,
       setThemeState,
       setAccentPreferenceState,
-      startNewChat,
-      syncProviderState,
+      syncDefaultProviderState,
+      syncConversationState,
       syncTrayLabels,
     ]
   );

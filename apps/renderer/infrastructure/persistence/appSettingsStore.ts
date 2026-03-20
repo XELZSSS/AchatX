@@ -9,7 +9,7 @@ const MIN_TOOL_CALL_ROUNDS = 1;
 const MAX_TOOL_CALL_ROUNDS = 12;
 
 export type AppSettings = {
-  activeProviderId: ProviderId;
+  defaultProviderId: ProviderId;
   languagePreference: LanguagePreference;
   themePreference: ThemePreference;
   accentPreference: AccentPreference;
@@ -25,7 +25,7 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> => {
 
 const areAppSettingsEqual = (left: AppSettings, right: AppSettings): boolean => {
   return (
-    left.activeProviderId === right.activeProviderId &&
+    left.defaultProviderId === right.defaultProviderId &&
     left.languagePreference === right.languagePreference &&
     left.themePreference === right.themePreference &&
     left.accentPreference === right.accentPreference &&
@@ -84,7 +84,7 @@ export const getDefaultAppSettings = (): AppSettings => {
   const fallbackProviderId = listProviderIds()[0] ?? 'gemini';
 
   return {
-    activeProviderId: fallbackProviderId,
+    defaultProviderId: fallbackProviderId,
     languagePreference: 'system',
     themePreference: 'system',
     accentPreference: 'neutral',
@@ -101,9 +101,9 @@ export const normalizeAppSettings = (
   const raw = isPlainObject(value) ? value : {};
 
   return {
-    activeProviderId: isProviderId(raw.activeProviderId)
-      ? raw.activeProviderId
-      : (fallback.activeProviderId ?? defaults.activeProviderId),
+    defaultProviderId: isProviderId(raw.defaultProviderId)
+      ? raw.defaultProviderId
+      : (fallback.defaultProviderId ?? defaults.defaultProviderId),
     languagePreference: isLanguagePreference(raw.languagePreference)
       ? raw.languagePreference
       : (fallback.languagePreference ?? defaults.languagePreference),
@@ -173,10 +173,10 @@ export const updateAppSettings = (updates: Partial<AppSettings>): AppSettings =>
   });
 };
 
-export const loadActiveProviderId = (): ProviderId => {
-  return loadAppSettings().activeProviderId;
+export const loadDefaultProviderId = (): ProviderId => {
+  return loadAppSettings().defaultProviderId;
 };
 
-export const persistActiveProviderId = (providerId: ProviderId): void => {
-  updateAppSettings({ activeProviderId: providerId });
+export const persistDefaultProviderId = (providerId: ProviderId): void => {
+  updateAppSettings({ defaultProviderId: providerId });
 };

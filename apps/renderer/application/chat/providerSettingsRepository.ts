@@ -2,8 +2,8 @@ import { ProviderId } from '@/shared/types/chat';
 import { getDefaultProviderSettings, ProviderSettings } from '@/infrastructure/providers/defaults';
 import { listProviderIds } from '@/infrastructure/providers/registry';
 import {
-  loadActiveProviderId,
-  persistActiveProviderId,
+  loadDefaultProviderId,
+  persistDefaultProviderId,
 } from '@/infrastructure/persistence/appSettingsStore';
 import {
   applyGlobalTavilyConfig,
@@ -20,12 +20,12 @@ export class ProviderSettingsRepository {
     this.settings = initialSettings;
   }
 
-  getActiveProviderId(): ProviderId {
-    return loadActiveProviderId();
+  getDefaultProviderId(): ProviderId {
+    return loadDefaultProviderId();
   }
 
-  persistActiveProviderId(providerId: ProviderId): void {
-    persistActiveProviderId(providerId);
+  persistDefaultProviderId(providerId: ProviderId): void {
+    persistDefaultProviderId(providerId);
   }
 
   getSettings(providerId: ProviderId): ProviderSettings {

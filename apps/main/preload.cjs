@@ -117,7 +117,22 @@ hydrateAppStorageCache();
 
 const readStoredAppValue = (key) => {
   const normalizedKey = toPrimitiveString(key) ?? '';
-  return appStorageCache.has(normalizedKey) ? appStorageCache.get(normalizedKey) : null;
+  if (appStorageCache.has(normalizedKey)) {
+    return appStorageCache.get(normalizedKey);
+  }
+
+  try {
+    const value = ipcRenderer.sendSync('storage:app:read-sync', normalizedKey);
+    const normalizedValue = toPrimitiveString(value);
+    if (normalizedValue !== undefined) {
+      appStorageCache.set(normalizedKey, normalizedValue);
+      return normalizedValue;
+    }
+  } catch {
+    // Ignore sync storage failures so bootstrap cache remains the fast path.
+  }
+
+  return null;
 };
 
 const writeStoredAppValue = (key, value) => {
@@ -160,15 +175,20 @@ const resetStoredAppCache = () => {
   appStorageCache.clear();
 };
 
-const invoke = (channel) => (...args) => ipcRenderer.invoke(channel, ...args);
+const invoke =
+  (channel) =>
+  (...args) =>
+    ipcRenderer.invoke(channel, ...args);
 
-const subscribe = (channel, mapPayload = (...args) => args[0]) => (callback) => {
-  const handler = (_event, ...args) => callback(mapPayload(...args));
-  ipcRenderer.on(channel, handler);
-  return () => {
-    ipcRenderer.removeListener(channel, handler);
+const subscribe =
+  (channel, mapPayload = (...args) => args[0]) =>
+  (callback) => {
+    const handler = (_event, ...args) => callback(mapPayload(...args));
+    ipcRenderer.on(channel, handler);
+    return () => {
+      ipcRenderer.removeListener(channel, handler);
+    };
   };
-};
 
 contextBridge.exposeInMainWorld('axchat', {
   readStoredAppValue,

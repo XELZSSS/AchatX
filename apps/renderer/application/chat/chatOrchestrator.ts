@@ -4,12 +4,7 @@ import type { RequestPolicy } from '@/infrastructure/providers/requestPolicy';
 import { ProviderResponseMetadata } from '@/infrastructure/providers/types';
 import { ProviderSettings } from '@/infrastructure/providers/defaults';
 import { ProviderSettingsRepository } from '@/application/chat/providerSettingsRepository';
-import { ProviderRuntime } from '@/application/chat/providerRuntime';
-
-type ProviderSyncOptions = {
-  persistActiveProviderId?: boolean;
-  providerSettings?: ProviderSettings;
-};
+import { ConversationContext, ProviderRuntime } from '@/application/chat/providerRuntime';
 
 export class ChatOrchestrator {
   private readonly settingsRepository: ProviderSettingsRepository;
@@ -20,24 +15,22 @@ export class ChatOrchestrator {
     runtime?: ProviderRuntime
   ) {
     this.settingsRepository = settingsRepository;
-    const initialProviderId = this.settingsRepository.getActiveProviderId();
+    const initialProviderId = this.settingsRepository.getDefaultProviderId();
+    const initialProviderSettings = this.settingsRepository.getSettings(initialProviderId);
     this.runtime = runtime ?? new ProviderRuntime(initialProviderId);
-    this.syncProviderContext(initialProviderId);
+    this.runtime.applyConversationContext(
+      initialProviderId,
+      initialProviderSettings.modelName,
+      initialProviderSettings
+    );
   }
 
-  private syncProviderContext(providerId: ProviderId, options: ProviderSyncOptions = {}): void {
-    const { persistActiveProviderId = false, providerSettings } = options;
+  private syncRuntimeProviderSettings(
+    providerId: ProviderId,
+    providerSettings?: ProviderSettings
+  ): void {
     const resolvedSettings = providerSettings ?? this.settingsRepository.getSettings(providerId);
-
-    if (this.runtime.getProviderId() !== providerId) {
-      this.runtime.setProvider(providerId);
-    }
-
     this.runtime.applyProviderSettings(providerId, resolvedSettings);
-
-    if (persistActiveProviderId) {
-      this.settingsRepository.persistActiveProviderId(providerId);
-    }
   }
 
   private updateAndSyncProviderSettings(
@@ -47,7 +40,7 @@ export class ChatOrchestrator {
     const next = this.settingsRepository.updateSettings(providerId, updates);
 
     if (providerId === this.getProviderId()) {
-      this.syncProviderContext(providerId, { providerSettings: next });
+      this.syncRuntimeProviderSettings(providerId, next);
     }
 
     return next;
@@ -57,8 +50,30 @@ export class ChatOrchestrator {
     return this.runtime.getProviderId();
   }
 
-  setProvider(id: ProviderId): void {
-    this.syncProviderContext(id, { persistActiveProviderId: true });
+  getDefaultProviderId(): ProviderId {
+    return this.settingsRepository.getDefaultProviderId();
+  }
+
+  getConversationContext(): ConversationContext {
+    return this.runtime.getConversationContext();
+  }
+
+  setDefaultProvider(id: ProviderId): void {
+    this.settingsRepository.persistDefaultProviderId(id);
+  }
+
+  activateConversationContext(context: ConversationContext): void {
+    this.runtime.applyConversationContext(
+      context.providerId,
+      context.modelName,
+      this.settingsRepository.getSettings(context.providerId)
+    );
+  }
+
+  activateDefaultConversationContext(): void {
+    const providerId = this.getDefaultProviderId();
+    const settings = this.settingsRepository.getSettings(providerId);
+    this.runtime.applyConversationContext(providerId, settings.modelName, settings);
   }
 
   getModelName(): string {
@@ -71,15 +86,15 @@ export class ChatOrchestrator {
       return;
     }
 
-    this.syncProviderContext(this.getProviderId());
+    this.syncRuntimeProviderSettings(this.getProviderId());
   }
 
   setReasoningEnabled(enabled: boolean): void {
     this.runtime.setReasoningEnabled(enabled);
   }
 
-  setModelName(model: string): void {
-    this.updateAndSyncProviderSettings(this.getProviderId(), { modelName: model });
+  setDefaultModelName(providerId: ProviderId, model: string): void {
+    this.updateAndSyncProviderSettings(providerId, { modelName: model });
   }
 
   getApiKey(): string | undefined {
@@ -106,14 +121,10 @@ export class ChatOrchestrator {
   }
 
   replaceAllProviderSettings(
-    settings: Record<ProviderId, ProviderSettings>,
-    activeProviderId: ProviderId = this.getProviderId()
+    settings: Record<ProviderId, ProviderSettings>
   ): Record<ProviderId, ProviderSettings> {
     const nextSettings = this.settingsRepository.replaceAllSettings(settings);
-    this.syncProviderContext(activeProviderId, {
-      persistActiveProviderId: true,
-      providerSettings: nextSettings[activeProviderId],
-    });
+    this.syncRuntimeProviderSettings(this.getProviderId(), nextSettings[this.getProviderId()]);
     return nextSettings;
   }
 

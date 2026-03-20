@@ -33,7 +33,7 @@ const ProviderTab = ({
   providerId,
   providerOptions,
   modelName,
-  currentModelName: _currentModelName,
+  currentConversationModelName,
   apiKey,
   requestMode,
   baseUrl,
@@ -108,7 +108,10 @@ const ProviderTab = ({
     typeof window !== 'undefined' && typeof window.axchat?.openAxchatLocalConfig === 'function';
   const canOpenCredentialPage =
     typeof window !== 'undefined' && typeof window.axchat?.openExternal === 'function';
-  const handleOpenLocalConfig = useCallback(() => void window.axchat?.openAxchatLocalConfig?.(), []);
+  const handleOpenLocalConfig = useCallback(
+    () => void window.axchat?.openAxchatLocalConfig?.(),
+    []
+  );
   const handleOpenCredentialPage = useCallback(
     () => void window.axchat?.openExternal?.('https://console.cloud.google.com/auth/clients/'),
     []
@@ -125,19 +128,37 @@ const ProviderTab = ({
   const handleRegionCn = useCallback(() => onSetRegionBaseUrl('cn'), [onSetRegionBaseUrl]);
   const isOpenAICodexAuthProvider = providerId === 'openai-codex-auth';
   const isGeminiCliAuthProvider = providerId === 'gemini-cli-auth';
+  const conversationModelHint =
+    currentConversationModelName && currentConversationModelName !== modelName
+      ? `${t('settings.modal.modelCurrentHint')} ${currentConversationModelName}`
+      : t('settings.modal.modelHint');
   const openAICodexAuth = useOpenAICodexAuthState(isOpenAICodexAuthProvider);
   const geminiCliAuth = useGeminiCliAuthState(isGeminiCliAuthProvider);
   return (
     <div className="space-y-4">
-      <Field label={t('settings.modal.provider')}>
-        <Dropdown
-          value={providerId}
-          options={providerOptions}
-          onChange={handleProviderChange}
-        />
+      <Field
+        label={
+          <div className="space-y-1">
+            <div>{t('settings.modal.provider')}</div>
+            <div className="text-[11px] font-normal text-[var(--ink-3)]">
+              {t('settings.modal.providerHint')}
+            </div>
+          </div>
+        }
+      >
+        <Dropdown value={providerId} options={providerOptions} onChange={handleProviderChange} />
       </Field>
 
-      <Field label={t('settings.modal.model')}>
+      <Field
+        label={
+          <div className="space-y-1">
+            <div>{t('settings.modal.model')}</div>
+            <div className="text-[11px] font-normal text-[var(--ink-3)]">
+              {conversationModelHint}
+            </div>
+          </div>
+        }
+      >
         <Input
           type="text"
           value={modelName}

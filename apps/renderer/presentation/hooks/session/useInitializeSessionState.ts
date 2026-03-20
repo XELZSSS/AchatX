@@ -84,7 +84,9 @@ export const useInitializeSessionState = ({
             return;
           }
 
-          loadedSessions = loadedSessions.filter((session) => session.id !== activeSessionSummary.id);
+          loadedSessions = loadedSessions.filter(
+            (session) => session.id !== activeSessionSummary.id
+          );
           setSessions(loadedSessions);
           activeSessionSummary = loadedSessions[0];
         }
@@ -94,6 +96,8 @@ export const useInitializeSessionState = ({
           console.warn(`${SESSION_DEBUG_PREFIX} initialized empty session id`, {
             sessionId: newId,
           });
+          chatService.activateDefaultConversationContext();
+          sessionContextActions.syncConversationState();
           setCurrentSessionId(newId);
           await setActiveSessionId(newId);
           if (!disposed) {

@@ -3,7 +3,6 @@
   var DEFAULT_THEME = 'dark';
   var DEFAULT_THEME_PREFERENCE = 'system';
   var APP_SETTINGS_KEY = 'axchat_app_settings';
-  var THEME_KEY = 'axchat_theme';
   var DARK_BG = '#0a0a0a';
   var LIGHT_BG = '#ffffff';
   var isTheme = function (theme) {
@@ -53,25 +52,11 @@
             return null;
           };
     var storage = window.localStorage;
-    var theme = parseThemePreferenceFromSettings(storage.getItem(APP_SETTINGS_KEY));
-
-    if (!theme) {
-      var nativeAppSettings = readNativeValue('appSettings');
-      theme = parseThemePreferenceFromSettings(nativeAppSettings);
-      if (theme && nativeAppSettings) {
-        storage.setItem(APP_SETTINGS_KEY, nativeAppSettings);
-      }
-    }
-
-    if (!theme) {
-      theme = storage.getItem(THEME_KEY);
-      if (theme !== 'system' && !isTheme(theme)) {
-        theme = readNativeValue('theme');
-        if (theme === 'system' || isTheme(theme)) {
-          storage.setItem(THEME_KEY, theme);
-        }
-      }
-    }
+    var rawSettings =
+      window.axchat && typeof window.axchat.readStoredAppValue === 'function'
+        ? readNativeValue('appSettings')
+        : storage.getItem(APP_SETTINGS_KEY);
+    var theme = parseThemePreferenceFromSettings(rawSettings);
 
     applyTheme(theme || DEFAULT_THEME_PREFERENCE);
   } catch {

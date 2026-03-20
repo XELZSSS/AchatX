@@ -2,8 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useReducer } from 'react';
 import { listProviderIds } from '@/infrastructure/providers/registry';
 import {
   normalizeChatAgentEnabled,
+  normalizeChatAgentPromptParts,
   resolveChatAgentFormPrompt,
-  parseChatAgentPromptToParts,
   buildChatAgentPromptFromParts,
   getDefaultChatAgentSearchEnabled,
   normalizeChatAgentSearchEnabled,
@@ -25,15 +25,13 @@ import { loadAppSettings } from '@/infrastructure/persistence/appSettingsStore';
 
 const resolvePromptParts = (
   providerId: ProviderId,
-  chatAgentPrompt?: string,
   chatAgentPromptParts?: {
     identity: string;
     role: string;
     setting: string;
   }
 ) =>
-  chatAgentPromptParts ??
-  parseChatAgentPromptToParts(providerId, chatAgentPrompt) ?? {
+  normalizeChatAgentPromptParts(providerId, chatAgentPromptParts) ?? {
     identity: '',
     role: '',
     setting: '',
@@ -66,11 +64,7 @@ type ProviderStateInput = {
 };
 
 const buildProviderState = (input: ProviderStateInput): SettingsModalState['provider'] => {
-  const promptParts = resolvePromptParts(
-    input.providerId,
-    input.chatAgentPrompt,
-    input.chatAgentPromptParts
-  );
+  const promptParts = resolvePromptParts(input.providerId, input.chatAgentPromptParts);
   const promptFromParts = buildChatAgentPromptFromParts(input.providerId, promptParts);
 
   return {
@@ -125,7 +119,7 @@ const buildStateFromInput = (
   return {
     provider: buildProviderState(input),
     app: {
-      activeProviderId: input.providerId,
+      defaultProviderId: input.providerId,
       languagePreference: input.languagePreference,
       themePreference: input.themePreference,
       accentPreference: input.accentPreference,
@@ -287,7 +281,7 @@ export const useSettingsForm = ({
     });
     dispatch({
       type: 'patch_app',
-      payload: { activeProviderId: nextProviderId },
+      payload: { defaultProviderId: nextProviderId },
     });
   };
 

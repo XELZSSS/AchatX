@@ -85,10 +85,7 @@ const parseSessionDraftMap = (value: string | null): SessionDraftMap | null => {
 export const readSessionDraft = (sessionId: string): string => {
   const stored = readAppStorage('inputDraft');
   const drafts = parseSessionDraftMap(stored);
-  if (drafts) {
-    return drafts[sessionId] ?? '';
-  }
-  return stored ?? '';
+  return drafts?.[sessionId] ?? '';
 };
 
 export const writeSessionDraft = (sessionId: string, value: string): void => {
@@ -121,22 +118,6 @@ export const parseRecentEmojiStats = (value: string | null): RecentEmojiStat[] =
   try {
     const parsed = JSON.parse(value) as unknown;
     if (!Array.isArray(parsed)) return [];
-    if (parsed.every((item) => typeof item === 'string')) {
-      const legacyStats = parsed
-        .filter(
-          (item): item is string =>
-            typeof item === 'string' &&
-            TWEMOJI_CATALOG.some((entry) => entry.glyph === item || entry.id === item)
-        )
-        .map((emoji, index, list) => ({
-          id: TWEMOJI_CATALOG.find((entry) => entry.glyph === emoji || entry.id === emoji)?.id ?? emoji,
-          count: 1,
-          lastUsedAt: list.length - index,
-        }));
-      return sortRecentEmojiStats(
-        Array.from(new Map(legacyStats.map((item) => [item.id, item])).values())
-      );
-    }
     const sanitized = parsed.filter((item): item is RecentEmojiStat => {
       return (
         typeof item === 'object' &&
@@ -167,8 +148,7 @@ export const getInitialEmojiCategory = (recentEmojiStats: RecentEmojiStat[]): Em
 
 export const getSupportedEmojiCatalog = (): TwemojiEntry[] => {
   const filteredCatalog = TWEMOJI_CATALOG.filter(
-    (entry) =>
-      isEmojiGlyphSupported(entry.glyph) && isEmojiCompositeGlyphSupported(entry.glyph)
+    (entry) => isEmojiGlyphSupported(entry.glyph) && isEmojiCompositeGlyphSupported(entry.glyph)
   );
   return filteredCatalog.length > 0 ? filteredCatalog : TWEMOJI_CATALOG;
 };
@@ -190,7 +170,8 @@ export const matchesEmojiSearch = (entry: TwemojiEntry, normalizedSearchTerm: st
   entry.keywords.some((keyword) => keyword.toLowerCase().includes(normalizedSearchTerm));
 
 export const getEmojiTooltip = (entry: TwemojiEntry): string => entry.label;
-export const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+export const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 export const getFocusablePickerElements = (
   container: HTMLDivElement | null

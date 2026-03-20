@@ -49,24 +49,9 @@ const readThemePreferenceFromAppSettings = (readAppStorageValue) => {
   }
 };
 
-const loadThemeState = async ({ fs, themeStateFile, readAppStorageValue }) => {
+const loadThemeState = ({ readAppStorageValue }) => {
   const storedThemePreference = readThemePreferenceFromAppSettings(readAppStorageValue);
-  if (storedThemePreference) {
-    return storedThemePreference;
-  }
-
-  try {
-    const raw = await fs.promises.readFile(themeStateFile, 'utf-8');
-    const parsed = JSON.parse(raw);
-    return isThemePreference(parsed?.theme) ? parsed.theme : DEFAULT_THEME_PREFERENCE;
-  } catch {
-    return DEFAULT_THEME_PREFERENCE;
-  }
-};
-
-const persistThemeState = ({ fs, themeStateFile, theme }) => {
-  const resolved = isThemePreference(theme) ? theme : DEFAULT_THEME_PREFERENCE;
-  persistJsonFile(fs, themeStateFile, { theme: resolved });
+  return storedThemePreference ?? DEFAULT_THEME_PREFERENCE;
 };
 
 const loadWindowState = async ({ fs, windowStateFile }) => {
@@ -103,5 +88,4 @@ module.exports = {
   loadThemeState,
   loadWindowState,
   persistJsonFile,
-  persistThemeState,
 };

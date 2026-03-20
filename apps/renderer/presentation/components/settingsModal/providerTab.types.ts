@@ -66,7 +66,7 @@ export type ProviderTabProps = {
   providerId: ProviderId;
   providerOptions: DropdownOption[];
   modelName: string;
-  currentModelName: string;
+  currentConversationModelName: string;
   apiKey: string;
   requestMode?: OpenAIRequestMode;
   baseUrl?: string;

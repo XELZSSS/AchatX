@@ -1,14 +1,11 @@
 /* global console, process */
-const { app, net, protocol, session } = require('electron');
+const { net, protocol, session } = require('electron');
 const { URL } = require('node:url');
 const { loadProxyConfig, loadProxyState, persistProxyState } = require('./proxy/config.cjs');
 const { createResolveForwardTarget } = require('./proxy/bridgeHelpers.cjs');
 
-const {
-  PROXY_PATH_PREFIX,
-  STATIC_PROXY_ROUTES,
-  OPENAI_COMPATIBLE_ROUTE_PATTERNS,
-} = loadProxyConfig();
+const { PROXY_PATH_PREFIX, STATIC_PROXY_ROUTES, OPENAI_COMPATIBLE_ROUTE_PATTERNS } =
+  loadProxyConfig();
 
 const AXCHAT_PROTOCOL_SCHEME = 'axchat';
 const AXCHAT_PROTOCOL_HOST = 'local';
@@ -42,7 +39,7 @@ const BLOCKED_HEADERS = new Set([
   SEARXNG_BASE_URL_HEADER,
 ]);
 
-let proxyState = loadProxyState(app);
+let proxyState = loadProxyState();
 let protocolInstalled = false;
 
 protocol.registerSchemesAsPrivileged([
@@ -70,23 +67,27 @@ const isDevServerUrl = (urlString) => {
   }
 };
 
-const { buildForwardHeaders, createJsonResponse, readRequestBodyForForwarding, resolveForwardTarget } =
-  createResolveForwardTarget({
-    proxyPathPrefix: PROXY_PATH_PREFIX,
-    staticRouteTable: STATIC_ROUTE_TABLE,
-    directBridgePrefix: DIRECT_BRIDGE_PREFIX,
-    openAICompatiblePrefixes: OPENAI_COMPATIBLE_PREFIXES,
-    headers: {
-      authHeader: AUTH_HEADER,
-      blockedHeaders: BLOCKED_HEADERS,
-      openaiCompatibleBaseUrl: OPENAI_COMPATIBLE_BASE_URL_HEADER,
-      openaiCompatibleHeaders: OPENAI_COMPATIBLE_HEADERS_HEADER,
-      openaiCompatiblePathMode: OPENAI_COMPATIBLE_PATH_HEADER,
-      searxngBaseUrl: SEARXNG_BASE_URL_HEADER,
-    },
-    isDevServerUrl,
-    getAllowHttpTargets: () => proxyState.allowHttpTargets,
-  });
+const {
+  buildForwardHeaders,
+  createJsonResponse,
+  readRequestBodyForForwarding,
+  resolveForwardTarget,
+} = createResolveForwardTarget({
+  proxyPathPrefix: PROXY_PATH_PREFIX,
+  staticRouteTable: STATIC_ROUTE_TABLE,
+  directBridgePrefix: DIRECT_BRIDGE_PREFIX,
+  openAICompatiblePrefixes: OPENAI_COMPATIBLE_PREFIXES,
+  headers: {
+    authHeader: AUTH_HEADER,
+    blockedHeaders: BLOCKED_HEADERS,
+    openaiCompatibleBaseUrl: OPENAI_COMPATIBLE_BASE_URL_HEADER,
+    openaiCompatibleHeaders: OPENAI_COMPATIBLE_HEADERS_HEADER,
+    openaiCompatiblePathMode: OPENAI_COMPATIBLE_PATH_HEADER,
+    searxngBaseUrl: SEARXNG_BASE_URL_HEADER,
+  },
+  isDevServerUrl,
+  getAllowHttpTargets: () => proxyState.allowHttpTargets,
+});
 
 const installProtocolHandler = () => {
   if (protocolInstalled) return;
@@ -138,7 +139,7 @@ const stopProxy = () => {};
 
 const persistState = (nextState) => {
   proxyState = nextState;
-  persistProxyState(app, proxyState);
+  persistProxyState(proxyState);
 };
 
 const setAllowHttpTargets = async (enabled) => {

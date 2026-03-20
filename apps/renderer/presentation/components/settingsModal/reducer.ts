@@ -33,7 +33,7 @@ export type SettingsModalState = {
     chatAgentSearchEnabled: boolean;
   };
   app: {
-    activeProviderId: ProviderId;
+    defaultProviderId: ProviderId;
     languagePreference: LanguagePreference;
     themePreference: ThemePreference;
     accentPreference: AccentPreference;

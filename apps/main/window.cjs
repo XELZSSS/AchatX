@@ -17,11 +17,9 @@ const {
   loadThemeState,
   loadWindowState,
   persistJsonFile,
-  persistThemeState: persistThemeStateFile,
 } = require('./windowHelpers.cjs');
 
 const WINDOW_STATE_FILE = path.join(app.getPath('userData'), 'window-state.json');
-const THEME_STATE_FILE = path.join(app.getPath('userData'), 'theme-state.json');
 
 let mainWindow = null;
 let saveTimer = null;
@@ -32,26 +30,18 @@ let lastSystemLanguage = null;
 
 const isLiveWindow = (win) => Boolean(win && !win.isDestroyed());
 
-const persistCurrentThemeState = (theme) => {
-  const resolved = isThemePreference(theme) ? theme : DEFAULT_THEME_PREFERENCE;
-  persistThemeStateFile({ fs, themeStateFile: THEME_STATE_FILE, theme: resolved });
-};
-
 const setWindowBackground = (win, theme) => {
   if (!isLiveWindow(win)) return;
   win.setBackgroundColor(getWindowBackgroundColor(theme));
 };
 
-const applyWindowTheme = (theme, { persist = false } = {}) => {
+const applyWindowTheme = (theme) => {
   const preference = isThemePreference(theme) ? theme : DEFAULT_THEME_PREFERENCE;
   const resolved = preference === 'system' ? getSystemTheme(nativeTheme) : preference;
   currentThemePreference = preference;
   currentTheme = resolved;
   nativeTheme.themeSource = preference;
   setWindowBackground(mainWindow, resolved);
-  if (persist) {
-    persistCurrentThemeState(preference);
-  }
   return { preference, resolved };
 };
 
@@ -163,7 +153,7 @@ const registerExternalNavigationGuards = (win, isDev) => {
 const createMainWindow = async ({ isDev, shouldPreventClose }) => {
   const [state, theme] = await Promise.all([
     loadWindowState({ fs, windowStateFile: WINDOW_STATE_FILE }),
-    loadThemeState({ fs, themeStateFile: THEME_STATE_FILE, readAppStorageValue }),
+    Promise.resolve(loadThemeState({ readAppStorageValue })),
   ]);
   const { resolved: initialTheme } = applyWindowTheme(theme);
 
@@ -215,10 +205,13 @@ const createMainWindow = async ({ isDev, shouldPreventClose }) => {
     showMainWindowOnce();
   };
 
-  const showTimeout = setTimeout(() => {
-    if (!isLiveWindow(mainWindow) || hasShownWindow) return;
-    showMainWindowOnce();
-  }, isDev ? WINDOW_SHOW_TIMEOUT_MS.dev : WINDOW_SHOW_TIMEOUT_MS.prod);
+  const showTimeout = setTimeout(
+    () => {
+      if (!isLiveWindow(mainWindow) || hasShownWindow) return;
+      showMainWindowOnce();
+    },
+    isDev ? WINDOW_SHOW_TIMEOUT_MS.dev : WINDOW_SHOW_TIMEOUT_MS.prod
+  );
 
   ipcMain.on('app:renderer-ready', onRendererReady);
 
@@ -288,7 +281,7 @@ const registerWindowIpcHandlers = () => {
   ipcMain.handle('window:get-system-language', () => getSystemLanguage(app));
   ipcMain.handle('window:get-system-theme', () => getSystemTheme(nativeTheme));
   ipcMain.handle('window:set-theme', (_event, theme) => {
-    applyWindowTheme(theme, { persist: true });
+    applyWindowTheme(theme);
   });
 };
 

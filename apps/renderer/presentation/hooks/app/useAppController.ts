@@ -13,11 +13,7 @@ import { useChatSessions } from '@/presentation/hooks/session/useChatSessions';
 import { useStreamingMessages } from '@/presentation/hooks/chat/useStreamingMessages';
 import { useSearchToggle } from '@/presentation/hooks/search/useSearchToggle';
 import { useReasoningToggle } from '@/presentation/hooks/reasoning/useReasoningToggle';
-import {
-  cleanupLegacyAppStorage,
-  readAppStorage,
-  writeAppStorage,
-} from '@/infrastructure/persistence/storageKeys';
+import { readAppStorage, writeAppStorage } from '@/infrastructure/persistence/storageKeys';
 import { useAppSettings } from '@/presentation/hooks/settings/useAppSettings';
 import {
   AccentPreference,
@@ -44,12 +40,17 @@ import {
 } from '@/presentation/hooks/app/appControllerViewModels';
 
 export const useAppController = () => {
-  const initialProviderId = chatService.getProviderId();
+  const initialDefaultProviderId = chatService.getDefaultProviderId();
+  const initialConversationContext = chatService.getConversationContext();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [providerState, setProviderState] = useState(() => ({
+  const [defaultProviderState, setDefaultProviderState] = useState(() => ({
     providerSettings: chatService.getAllProviderSettings(),
-    currentProviderId: initialProviderId,
+    currentProviderId: initialDefaultProviderId,
+  }));
+  const [conversationState, setConversationState] = useState(() => ({
+    currentProviderId: initialConversationContext.providerId,
+    currentModelName: initialConversationContext.modelName,
   }));
   const [language, setLanguageState] = useState<Language>(() => getLanguage());
   const [languagePreference, setLanguagePreferenceState] = useState<LanguagePreference>(() =>
@@ -74,23 +75,29 @@ export const useAppController = () => {
     }
   });
 
-  const syncProviderState = useCallback(() => {
-    setProviderState({
+  const syncDefaultProviderState = useCallback(() => {
+    setDefaultProviderState({
       providerSettings: chatService.getAllProviderSettings(),
-      currentProviderId: chatService.getProviderId(),
+      currentProviderId: chatService.getDefaultProviderId(),
     });
   }, []);
 
-  const { providerSettings, currentProviderId } = providerState;
-  const currentProviderSettings = providerSettings[currentProviderId];
-  const currentModelName = currentProviderSettings?.modelName ?? chatService.getModelName();
+  const syncConversationState = useCallback(() => {
+    const context = chatService.getConversationContext();
+    setConversationState({
+      currentProviderId: context.providerId,
+      currentModelName: context.modelName,
+    });
+  }, []);
+
+  const { providerSettings, currentProviderId: defaultProviderId } = defaultProviderState;
+  const { currentProviderId: conversationProviderId, currentModelName: conversationModelName } =
+    conversationState;
+  const currentProviderSettings = providerSettings[defaultProviderId];
+  const currentModelName = currentProviderSettings?.modelName ?? '';
   const currentApiKey = currentProviderSettings?.apiKey ?? '';
   const defaultSessionTitle = t('sidebar.newChat');
-  const searchAvailable = hasSearchConfig(providerSettings[currentProviderId]?.tavily);
-
-  useEffect(() => {
-    cleanupLegacyAppStorage();
-  }, []);
+  const searchAvailable = hasSearchConfig(providerSettings[conversationProviderId]?.tavily);
 
   useElectronBodyClass();
   useDocumentAppearance(language, theme, accentPreference);
@@ -113,7 +120,7 @@ export const useAppController = () => {
     messages,
     setMessages,
     defaultSessionTitle,
-    syncProviderState,
+    syncConversationState,
     isStreaming: streaming.isStreaming,
     isLoading: streaming.isLoading,
   });
@@ -127,11 +134,11 @@ export const useAppController = () => {
   const { searchEnabled, setSearchEnabled } = useSearchToggle({
     chatService,
     tavilyAvailable: searchAvailable,
-    currentProviderId,
+    currentProviderId: conversationProviderId,
   });
   const { reasoningEnabled, setReasoningEnabled } = useReasoningToggle({
     chatService,
-    currentProviderId,
+    currentProviderId: conversationProviderId,
   });
 
   const handleNewChatClick = useCallback(() => {
@@ -161,15 +168,14 @@ export const useAppController = () => {
   const { syncTrayLabels, handleSaveSettings, handleImportSettings } = useAppSettings({
     chatService,
     providerSettings,
-    currentProviderId,
-    syncProviderState,
+    syncDefaultProviderState,
+    syncConversationState,
     setLanguagePreferenceState,
     setLanguageState,
     setThemePreferenceState,
     setThemeState,
     setAccentPreferenceState,
-    commitCurrentSession,
-    startNewChat,
+    hasMessages: messages.length > 0,
   });
 
   useTrayLanguageSync(language, syncTrayLabels);
@@ -186,8 +192,9 @@ export const useAppController = () => {
   const settingsModalProps = useSettingsModalProps({
     isSettingsOpen,
     providerSettings,
-    currentProviderId,
+    currentProviderId: defaultProviderId,
     currentModelName,
+    currentConversationModelName: conversationModelName,
     currentApiKey,
     language,
     languagePreference,

@@ -62,7 +62,8 @@ export const ConfigTransferPreviewCard = ({
             {t('settings.transfer.preview.providerCount')}: {preview.providerCount}
           </div>
           <div>
-            {t('settings.transfer.preview.activeProvider')}: {preview.appSettings.activeProviderId ?? '-'}
+            {t('settings.transfer.preview.defaultProvider')}:{' '}
+            {preview.appSettings.defaultProviderId ?? '-'}
           </div>
           <div>
             {t('settings.transfer.preview.language')}:{' '}
@@ -82,7 +83,8 @@ export const ConfigTransferPreviewCard = ({
               : t('settings.transfer.value.no')}
           </div>
           <div>
-            {t('settings.transfer.preview.toolCallRounds')}: {preview.appSettings.toolCallMaxRounds ?? '-'}
+            {t('settings.transfer.preview.toolCallRounds')}:{' '}
+            {preview.appSettings.toolCallMaxRounds ?? '-'}
           </div>
           <div>
             {t('settings.transfer.preview.allowHttpTargets')}:{' '}

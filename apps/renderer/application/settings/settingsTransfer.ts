@@ -12,7 +12,7 @@ import { MAX_TOOL_CALL_ROUNDS, MIN_TOOL_CALL_ROUNDS } from '@/infrastructure/pro
 import { t } from '@/shared/utils/i18n';
 
 export const SETTINGS_TRANSFER_SCHEMA = 'axchat-settings';
-export const SETTINGS_TRANSFER_VERSION = 1;
+export const SETTINGS_TRANSFER_VERSION = 2;
 
 export type SettingsImportMode = 'merge' | 'replace';
 
@@ -139,8 +139,8 @@ const normalizeImportedAppSettings = (value: unknown): PartialAppSettingsSnapsho
 
   const next: PartialAppSettingsSnapshot = {};
 
-  if (isProviderId(raw.activeProviderId)) {
-    next.activeProviderId = raw.activeProviderId;
+  if (isProviderId(raw.defaultProviderId)) {
+    next.defaultProviderId = raw.defaultProviderId;
   }
   if (
     raw.languagePreference === 'system' ||
@@ -210,7 +210,7 @@ const parseTransferFile = (contents: string): SettingsTransferFile => {
 
   return {
     schema: SETTINGS_TRANSFER_SCHEMA,
-    version: SETTINGS_TRANSFER_VERSION,
+    version: file.version,
     exportedAt: typeof file.exportedAt === 'string' ? file.exportedAt : new Date(0).toISOString(),
     includesSecrets: file.includesSecrets === true,
     appSettings: normalizeImportedAppSettings(file.appSettings),

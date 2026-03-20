@@ -31,40 +31,9 @@ const listNativeSessions = async (
   return normalizeSessions(await nativeSessionStorage.listStoredSessions(payload));
 };
 
-const hydrateNativeSessionsFromLocal = async (): Promise<ChatSession[]> => {
-  const nativeSessionStorage = getNativeSessionStorage();
-  if (!nativeSessionStorage) {
-    return [];
-  }
-
-  const localSessions = normalizeSessions(localSessionStore.getSessions());
-  if (localSessions.length === 0) {
-    return [];
-  }
-
-  for (const session of localSessions) {
-    await nativeSessionStorage.saveStoredSession(session);
-  }
-
-  const localActiveSessionId = localSessionStore.getActiveSessionId();
-  if (localActiveSessionId) {
-    await nativeSessionStorage.setStoredActiveSessionId(localActiveSessionId);
-  }
-
-  return listNativeSessions(nativeSessionStorage);
-};
-
 export const getSessionSummaries = async (limit?: number): Promise<ChatSession[]> => {
   return withSessionStorage(
-    async (nativeSessionStorage) => {
-      const sessions = await listNativeSessions(nativeSessionStorage, { limit });
-      if (sessions.length > 0) {
-        return sessions;
-      }
-
-      const hydratedSessions = await hydrateNativeSessionsFromLocal();
-      return hydratedSessions.length > 0 ? hydratedSessions : sessions;
-    },
+    async (nativeSessionStorage) => listNativeSessions(nativeSessionStorage, { limit }),
     () => localSessionStore.getSessionSummaries()
   );
 };
@@ -81,19 +50,7 @@ export const getSession = async (sessionId: string): Promise<ChatSession | null>
 
 export const getActiveSessionId = async (): Promise<string | null> => {
   return withSessionStorage(
-    async (nativeSessionStorage) => {
-      const nativeActiveSessionId = await nativeSessionStorage.getStoredActiveSessionId();
-      if (nativeActiveSessionId) {
-        return nativeActiveSessionId;
-      }
-
-      const localActiveSessionId = localSessionStore.getActiveSessionId();
-      if (localActiveSessionId) {
-        await nativeSessionStorage.setStoredActiveSessionId(localActiveSessionId);
-      }
-
-      return localActiveSessionId;
-    },
+    async (nativeSessionStorage) => nativeSessionStorage.getStoredActiveSessionId(),
     () => localSessionStore.getActiveSessionId()
   );
 };

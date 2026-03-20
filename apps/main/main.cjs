@@ -18,12 +18,9 @@ const { createMainWindow, getMainWindow, registerWindowIpcHandlers, showWindow }
 const { createTray, destroyTray, setTrayLanguage, setTrayLabels } = require(
   resolveMainModule('tray')
 );
-const {
-  startProxy,
-  stopProxy,
-  setAllowHttpTargets,
-  installProxyAuthHeaderInjection,
-} = require(resolveMainModule('proxy'));
+const { startProxy, stopProxy, setAllowHttpTargets, installProxyAuthHeaderInjection } = require(
+  resolveMainModule('proxy')
+);
 const { registerAppIpcHandlers } = require(resolveMainModule('ipc'));
 const { ensureDatabase, closeDatabase, resetDatabaseFiles } = require(
   resolveMainModule('storage/db')
@@ -45,7 +42,6 @@ const { initUpdater, checkForUpdates, openUpdateDownload, getUpdaterState } = re
 );
 
 const LEGACY_THEME_STATE_FILE = path.join(app.getPath('userData'), 'theme-state.json');
-const PROXY_STATE_FILE = path.join(app.getPath('userData'), 'proxy-state.json');
 
 const removeFileIfPresent = (filePath) => {
   try {
@@ -135,7 +131,6 @@ void app.whenReady().then(async () => {
       await logoutGeminiCliAuth();
       resetDatabaseFiles();
       removeFileIfPresent(LEGACY_THEME_STATE_FILE);
-      removeFileIfPresent(PROXY_STATE_FILE);
     },
     recoverFromFailedLocalDataReset: async () => {
       ensureDatabase();

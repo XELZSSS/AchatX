@@ -17,6 +17,7 @@ type UseSettingsModalPropsOptions = {
   providerSettings: ProviderSettingsMap;
   currentProviderId: keyof ProviderSettingsMap;
   currentModelName: string;
+  currentConversationModelName: string;
   currentApiKey: string;
   language: Language;
   languagePreference: LanguagePreference;
@@ -37,6 +38,7 @@ export const useSettingsModalProps = ({
   providerSettings,
   currentProviderId,
   currentModelName,
+  currentConversationModelName,
   currentApiKey,
   language,
   languagePreference,
@@ -58,6 +60,7 @@ export const useSettingsModalProps = ({
       providerSettings,
       providerId: currentProviderId,
       modelName: currentModelName,
+      currentConversationModelName,
       apiKey: currentApiKey,
       requestMode: currentProviderSettings?.requestMode,
       language,
@@ -84,6 +87,7 @@ export const useSettingsModalProps = ({
     [
       appVersion,
       currentApiKey,
+      currentConversationModelName,
       currentModelName,
       currentProviderId,
       currentProviderSettings,

@@ -22,7 +22,7 @@ type UseChatSessionsOptions = {
   messages: ChatMessage[];
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
   defaultSessionTitle: string;
-  syncProviderState: () => void;
+  syncConversationState: () => void;
   isStreaming: boolean;
   isLoading: boolean;
   onCloseSidebar?: () => void;
@@ -35,7 +35,7 @@ export const useChatSessions = ({
   messages,
   setMessages,
   defaultSessionTitle,
-  syncProviderState,
+  syncConversationState,
   isStreaming,
   isLoading,
   onCloseSidebar,
@@ -49,9 +49,9 @@ export const useChatSessions = ({
     () => ({
       setCurrentSessionId,
       setMessages,
-      syncProviderState,
+      syncConversationState,
     }),
-    [setMessages, syncProviderState]
+    [setMessages, syncConversationState]
   );
 
   const {
@@ -102,8 +102,9 @@ export const useChatSessions = ({
     [currentSessionId, sessions]
   );
 
-  const activeProviderId = chatService.getProviderId();
-  const activeModelName = chatService.getModelName();
+  const conversationContext = chatService.getConversationContext();
+  const conversationProviderId = conversationContext.providerId;
+  const conversationModelName = conversationContext.modelName;
 
   const activeSessionDraft = useMemo(() => {
     if (messages.length === 0) return null;
@@ -114,12 +115,12 @@ export const useChatSessions = ({
       existingSessionCreatedAt: currentSession?.createdAt,
       messages,
       defaultSessionTitle,
-      providerId: activeProviderId,
-      modelName: activeModelName,
+      providerId: conversationProviderId,
+      modelName: conversationModelName,
     });
   }, [
-    activeModelName,
-    activeProviderId,
+    conversationModelName,
+    conversationProviderId,
     currentSession?.createdAt,
     currentSession?.title,
     currentSessionId,
@@ -177,7 +178,9 @@ export const useChatSessions = ({
       return;
     }
 
-    if (!hasSessionSnapshotChanged(lastPersistedSessionRef.current ?? undefined, activeSessionDraft)) {
+    if (
+      !hasSessionSnapshotChanged(lastPersistedSessionRef.current ?? undefined, activeSessionDraft)
+    ) {
       return;
     }
 
@@ -222,7 +225,10 @@ export const useChatSessions = ({
         return;
       }
 
-      if (!force && !hasSessionSnapshotChanged(lastPersistedSessionRef.current ?? undefined, draft)) {
+      if (
+        !force &&
+        !hasSessionSnapshotChanged(lastPersistedSessionRef.current ?? undefined, draft)
+      ) {
         return;
       }
 
@@ -233,7 +239,13 @@ export const useChatSessions = ({
         saveSessionTimerRef.current = null;
       }
     },
-    [activeSessionDraft, lastPersistedSessionRef, pendingSessionSaveRef, persistSessionSnapshot, saveSessionTimerRef]
+    [
+      activeSessionDraft,
+      lastPersistedSessionRef,
+      pendingSessionSaveRef,
+      persistSessionSnapshot,
+      saveSessionTimerRef,
+    ]
   );
 
   const sessionActionsDisabled = isStreaming || isLoading;

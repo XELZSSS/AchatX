@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SetStateAction } from 'react';
 import type { ChatService } from '@/application/chat/chatService';
-import { listProviderIds } from '@/infrastructure/providers/registry';
 import { readAppStorage, writeAppStorage } from '@/infrastructure/persistence/storageKeys';
 
 type UseSearchToggleOptions = {
@@ -15,7 +14,7 @@ const SEARCH_ENABLED_STORAGE_KEY = 'searchEnabled';
 type ProviderToggleMap = Record<string, boolean>;
 
 const parseStoredToggleMap = (value: string | null): ProviderToggleMap | null => {
-  if (!value || value === 'true' || value === 'false') {
+  if (!value) {
     return null;
   }
 
@@ -36,28 +35,14 @@ const parseStoredToggleMap = (value: string | null): ProviderToggleMap | null =>
   }
 };
 
-const resolveStoredToggleMap = (value: string | null): ProviderToggleMap => {
-  const toggleMap = parseStoredToggleMap(value);
-  if (toggleMap) {
-    return toggleMap;
-  }
-
-  const legacyValue = value !== 'false';
-  return Object.fromEntries(listProviderIds().map((providerId) => [providerId, legacyValue]));
-};
-
 const readPersistedSearchEnabled = (providerId: string): boolean => {
   const stored = readAppStorage(SEARCH_ENABLED_STORAGE_KEY);
   const toggleMap = parseStoredToggleMap(stored);
-  if (toggleMap) {
-    return toggleMap[providerId] ?? true;
-  }
-
-  return stored !== 'false';
+  return toggleMap?.[providerId] ?? true;
 };
 
 const persistSearchEnabled = (providerId: string, enabled: boolean): void => {
-  const toggleMap = resolveStoredToggleMap(readAppStorage(SEARCH_ENABLED_STORAGE_KEY));
+  const toggleMap = parseStoredToggleMap(readAppStorage(SEARCH_ENABLED_STORAGE_KEY)) ?? {};
   writeAppStorage(
     SEARCH_ENABLED_STORAGE_KEY,
     JSON.stringify({ ...toggleMap, [providerId]: enabled })

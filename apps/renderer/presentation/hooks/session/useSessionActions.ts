@@ -66,6 +66,8 @@ export const useSessionActions = ({
         await flushSessionSave();
         const newId = uuidv4();
         console.warn(`${SESSION_DEBUG_PREFIX} generated new session id`, { sessionId: newId });
+        chatService.activateDefaultConversationContext();
+        sessionContextActions.syncConversationState();
         resetToDraftSession(newId);
         await setActiveSessionId(newId);
         clearSessionNotice();
@@ -74,7 +76,14 @@ export const useSessionActions = ({
         showSessionNotice(t('session.error.init'));
       }
     })();
-  }, [clearSessionNotice, flushSessionSave, resetToDraftSession, showSessionNotice]);
+  }, [
+    chatService,
+    clearSessionNotice,
+    flushSessionSave,
+    resetToDraftSession,
+    sessionContextActions,
+    showSessionNotice,
+  ]);
 
   const handleLoadSession = useCallback(
     (session: ChatSession) => {
@@ -98,7 +107,12 @@ export const useSessionActions = ({
 
           lastPersistedSessionRef.current = loadedSession;
           await setActiveSessionId(loadedSession.id);
-          activateSession(chatService, loadedSession, sessionContextActions, latestActivationTokenRef);
+          activateSession(
+            chatService,
+            loadedSession,
+            sessionContextActions,
+            latestActivationTokenRef
+          );
           clearSessionNotice();
           closeSidebar();
         } catch (error) {
@@ -177,6 +191,8 @@ export const useSessionActions = ({
               deletedSessionId: sessionId,
               replacementSessionId: nextSessionId,
             });
+            chatService.activateDefaultConversationContext();
+            sessionContextActions.syncConversationState();
             resetToDraftSession(nextSessionId);
             await setActiveSessionId(nextSessionId);
             if (!fallbackSummary) {

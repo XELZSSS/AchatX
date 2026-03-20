@@ -6,7 +6,7 @@ import { isDefaultSessionTitle } from '@/shared/utils/i18n';
 export type SessionContextActions = {
   setCurrentSessionId: Dispatch<SetStateAction<string>>;
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
-  syncProviderState: () => void;
+  syncConversationState: () => void;
 };
 
 export const SAVE_SESSION_DEBOUNCE_MS = 400;
@@ -112,12 +112,14 @@ const applySessionContext = async (
   activationToken: number,
   latestActivationTokenRef: MutableRefObject<number>
 ): Promise<void> => {
-  const { setCurrentSessionId, setMessages, syncProviderState } = actions;
+  const { setCurrentSessionId, setMessages, syncConversationState } = actions;
   setCurrentSessionId(session.id);
   setMessages(session.messages);
-  chatService.setProvider(session.provider);
-  chatService.setModelName(session.model);
-  syncProviderState();
+  chatService.activateConversationContext({
+    providerId: session.provider,
+    modelName: session.model,
+  });
+  syncConversationState();
   await chatService.restoreChatWithHistory(session.messages);
   if (latestActivationTokenRef.current !== activationToken) return;
   setCurrentSessionId(session.id);

@@ -57,7 +57,9 @@ export interface ChatSession {
   id: string;
   title: string;
   messages: ChatMessage[];
+  // Provider actually used by this saved conversation snapshot.
   provider: ProviderId;
+  // Model actually used by this saved conversation snapshot.
   model: string;
   createdAt: number;
   updatedAt: number;
